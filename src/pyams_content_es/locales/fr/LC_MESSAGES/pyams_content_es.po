@@ -1,0 +1,106 @@
+#
+# SOME DESCRIPTIVE TITLE
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE 1.0\n"
+"POT-Creation-Date: 2022-04-09 02:56+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Lingua 4.15.0\n"
+
+#: src/pyams_content_es/interfaces.py:35
+msgid "Elasticsearch documents indexer"
+msgstr "Indexation Elasticsearch"
+
+#: src/pyams_content_es/interfaces.py:56
+msgid "ZODB connection name"
+msgstr "Nom de la connexion ZODB"
+
+#: src/pyams_content_es/interfaces.py:57
+msgid "Name of ZODB defining document indexer connection"
+msgstr "Nom de la connexion vers la ZODB contenant les documents à indexer"
+
+#: src/pyams_content_es/zmi/__init__.py:67
+msgid "Test connection"
+msgstr "Tester la connexion"
+
+#: src/pyams_content_es/zmi/__init__.py:80
+msgid "Document indexer properties"
+msgstr "Propriétés de l'indexeur"
+
+#: src/pyams_content_es/zmi/__init__.py:116
+msgid "Content indexer test"
+msgstr "Test de connexion"
+
+#: src/pyams_content_es/zmi/content.py:57
+#: src/pyams_content_es/zmi/content.py:107
+msgid "Check index content"
+msgstr "Vérifier le contenu de l'index"
+
+#: src/pyams_content_es/zmi/content.py:67
+msgid "Internal ID"
+msgstr "Identifiant interne"
+
+#: src/pyams_content_es/zmi/content.py:70
+msgid "Modification date"
+msgstr "Date de dernière modification"
+
+#: src/pyams_content_es/zmi/content.py:73
+msgid "Workflow status"
+msgstr "Statut du workflow"
+
+#: src/pyams_content_es/zmi/content.py:90
+msgid "Force reindex"
+msgstr "Forcer la réindexation"
+
+#: src/pyams_content_es/zmi/content.py:93
+msgid "Cancel"
+msgstr "Annuler"
+
+#: src/pyams_content_es/zmi/content.py:133
+msgid ""
+"Documents informations are stored in an Elasticsearch index. If an error "
+"occurs, some documents can be stored in this index with different values "
+"from those stored into contents database.<br />If required, this operation "
+"will try to reindex document properties into Elasticsearch."
+msgstr ""
+"Certaines propriétés des documents sont stockées dans un index Elasticsearch, "
+"afin de permettre des recherches très rapides ! Mais si une erreur se produit, les "
+"informations présentes dans cet index peuvent être différentes de celles présentes dans "
+"la base des contenus, ce qui peut générer des dysfonctionnements.<br />"
+"Si nécessaire, cette fonction peut tenter de forcer la mise à jour du document "
+"dans l'index Elasticsearch."
+
+#: src/pyams_content_es/zmi/content.py:167
+msgid "Request successful, index content has been updated"
+msgstr "La demande de mise à jour de l'index a été effectuée sans erreur"
+
+#: src/pyams_content_es/zmi/search.py:98 src/pyams_content_es/zmi/search.py:241
+msgid "Search text"
+msgstr "Texte recherché"
+
+#: src/pyams_content_es/zmi/search.py:99 src/pyams_content_es/zmi/search.py:242
+msgid "Entered text will be search in titles, headers and descriptions"
+msgstr "Le texte indiqué sera recherché dans le titre, le chapô et la description des contenus..."
+
+#: src/pyams_content_es/zmi/search.py:103
+#: src/pyams_content_es/zmi/search.py:246
+msgid "Fulltext search"
+msgstr "Recherche « full-text »"
+
+#: src/pyams_content_es/zmi/search.py:104
+#: src/pyams_content_es/zmi/search.py:247
+msgid ""
+"Search in fulltext body, including attachments, instead on only searching in "
+"titles and headers"
+msgstr ""
+"En activant cette option, la recherche s'appuiera sur le contenu des blocs "
+"ainsi que sur les pièces jointes, et non seulement sur le titre, le "
+"chapô et la description..."
