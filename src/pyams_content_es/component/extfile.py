@@ -25,6 +25,7 @@ from pyams_content.component.paragraph.interfaces import IParagraphContainer, \
     IParagraphContainerTarget
 from pyams_content_es.interfaces import IDocumentIndexInfo
 from pyams_utils.adapter import adapter_config
+from pyams_workflow.interfaces import IWorkflow, IWorkflowState
 
 
 @adapter_config(name='extfile',
@@ -32,6 +33,13 @@ from pyams_utils.adapter import adapter_config
                 provides=IDocumentIndexInfo)
 def paragraph_container_extfile_index_info(context):
     """Paragraph container external file indexation info"""
+
+    workflow_state = None
+    workflow = IWorkflow(context, None)
+    if workflow is not None:
+        workflow_state = IWorkflowState(context, None)
+
+    # extract paragraphs attachments
     extfiles = []
     attachments = []
     for paragraph in IParagraphContainer(context).get_visible_paragraphs():
@@ -45,6 +53,9 @@ def paragraph_container_extfile_index_info(context):
                 'title': extfile.title,
                 'description': extfile.description
             })
+            # don't index attachments for contents which are not published
+            if workflow_state and (workflow_state.state not in workflow.visible_states):
+                continue
             for lang, data in extfile.data.items():
                 content_type = data.content_type
                 if isinstance(content_type, bytes):
