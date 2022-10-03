@@ -15,14 +15,15 @@
 This module defines the adapters which are used to handle links indexation.
 """
 
-__docformat__ = 'restructuredtext'
-
 from pyams_content.component.association.interfaces import IAssociationContainer, IAssociationItem
 from pyams_content.component.links import IBaseLink
 from pyams_content.component.paragraph.interfaces import IParagraphContainer, \
     IParagraphContainerTarget
 from pyams_content_es.interfaces import IDocumentIndexInfo
 from pyams_utils.adapter import adapter_config
+
+
+__docformat__ = 'restructuredtext'
 
 
 @adapter_config(name='links',
