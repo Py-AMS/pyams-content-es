@@ -43,6 +43,7 @@ def include_package(config):
     # add translations
     config.add_translation_dirs('pyams_content_es:locales')
 
+    # override PyAMS_content package components
     config.include('pyams_content')
 
     try:
