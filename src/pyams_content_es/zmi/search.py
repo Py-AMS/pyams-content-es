@@ -10,8 +10,9 @@
 # FOR A PARTICULAR PURPOSE.
 #
 
-"""PyAMS_*** module
+"""PyAMS_content_es.zmi.search module
 
+This module is used to provide components which are used by search engines.
 """
 
 from elasticsearch_dsl import Q, Search
@@ -39,11 +40,10 @@ from pyams_sequence.workflow import get_last_version
 from pyams_site.interfaces import ISiteRoot
 from pyams_table.interfaces import IValues
 from pyams_utils.adapter import adapter_config
-from pyams_utils.list import unique
+from pyams_utils.list import unique_iter
 from pyams_utils.registry import get_utility
 from pyams_workflow.versions import get_last_version_in_state
 from pyams_zmi.interfaces import IAdminLayer
-
 
 __docformat__ = 'restructuredtext'
 
@@ -85,7 +85,7 @@ class EsSharedToolQuickSearchResultsTableValues(SharedToolQuickSearchResultsTabl
         search = Search(using=client.es, index=client.index) \
             .query(params) \
             .source(['internal_id'])
-        return unique(map(get_last_version, ElasticResultSet(search)))
+        yield from unique_iter(map(get_last_version, ElasticResultSet(search)))
 
 
 #
@@ -191,8 +191,9 @@ class EsSharedToolAdvancedSearchResultsValues(SharedToolAdvancedSearchResultsVal
             })
         search = search.sort(*sort_order)
         if data.get('status'):
-            return unique(map(get_last_version_in_state, ElasticResultSet(search)))
-        return unique(map(get_last_version, ElasticResultSet(search)))
+            yield from unique_iter(map(get_last_version_in_state, ElasticResultSet(search)))
+        else:
+            yield from unique_iter(map(get_last_version, ElasticResultSet(search)))
 
 
 #
@@ -228,7 +229,7 @@ class EsSiteRootQuickSearchResultsTableValues(SiteRootQuickSearchResultsTableVal
         search = Search(using=client.es, index=client.index) \
             .query(params) \
             .source(['internal_id'])
-        return unique(map(get_last_version, ElasticResultSet(search)))
+        yield from unique_iter(map(get_last_version, ElasticResultSet(search)))
 
 
 #
@@ -329,4 +330,4 @@ class EsSiteRootAdvancedSearchResultsValues(SiteRootAdvancedSearchResultsValues)
                 }
             })
         search = search.sort(*sort_order)
-        return unique(map(get_last_version, ElasticResultSet(search)))
+        yield from unique_iter(map(get_last_version, ElasticResultSet(search)))
