@@ -72,8 +72,8 @@ def workflow_managed_index_info(content):
     }
 
 
-@subscriber(IWorkflowTransitionEvent)
-def handle_workflow_transition(event, context_selector=IDocumentIndexTarget):
+@subscriber(IWorkflowTransitionEvent, context_selector=IDocumentIndexTarget)
+def handle_workflow_transition(event):
     """Handle workflow transition
 
     When a workflow transition occurs, just update document workflow information
