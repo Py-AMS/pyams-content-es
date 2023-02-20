@@ -23,13 +23,13 @@ from zope.schema.vocabulary import getVocabularyRegistry
 from pyams_content.root.zmi.dashboard import SiteRootArchivedContentsTable, \
     SiteRootArchivedContentsValues, SiteRootDashboardManagerWaitingTable, \
     SiteRootDashboardManagerWaitingValues, SiteRootDashboardOwnerModifiedTable, \
-    SiteRootDashboardOwnerModifiedValues, SiteRootDashboardOwnerWaitingTable,\
+    SiteRootDashboardOwnerModifiedValues, SiteRootDashboardOwnerWaitingTable, \
     SiteRootDashboardOwnerWaitingValues, SiteRootLastModificationsTable, \
     SiteRootLastModificationsValues, SiteRootLastPublicationsTable, \
     SiteRootLastPublicationsValues, SiteRootPreparationsTable, SiteRootPreparationsValues, \
     SiteRootPublicationsTable, SiteRootPublicationsValues, SiteRootRetiredContentsTable, \
     SiteRootRetiredContentsValues, SiteRootSubmissionsTable, SiteRootSubmissionsValues
-from pyams_content.shared.common import IBaseSharedTool, SHARED_CONTENT_TYPES_VOCABULARY
+from pyams_content.shared.common.interfaces import IBaseSharedTool, SHARED_CONTENT_TYPES_VOCABULARY
 from pyams_content.shared.common.zmi.dashboard import SharedToolArchivedContentsTable, \
     SharedToolArchivedContentsValues, SharedToolDashboardManagerWaitingTable, \
     SharedToolDashboardManagerWaitingValues, SharedToolDashboardOwnerWaitingTable, \
