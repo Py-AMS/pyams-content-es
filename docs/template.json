@@ -209,41 +209,19 @@
         },
         "gallery": {
           "properties": {
-            "description": {
-              "properties": {
-                "en": {
-                  "type": "text"
-                },
-                "es": {
-                  "type": "text"
-                },
-                "de": {
-                  "type": "text"
-                },
-                "fr": {
-                  "type": "text",
-                  "analyzer": "french",
-                  "search_analyzer": "french_search"
-                }
-              }
+            "en": {
+              "type": "text"
             },
-            "title": {
-              "properties": {
-                "en": {
-                  "type": "text"
-                },
-                "es": {
-                  "type": "text"
-                },
-                "de": {
-                  "type": "text"
-                },
-                "fr": {
-                  "type": "text",
-                  "analyzer": "french",
-                  "search_analyzer": "french_search"
-                }
-              }
+            "es": {
+              "type": "text"
+            },
+            "de": {
+              "type": "text"
+            },
+            "fr": {
+              "type": "text",
+              "analyzer": "french",
+              "search_analyzer": "french_search"
             }
           }
         },
