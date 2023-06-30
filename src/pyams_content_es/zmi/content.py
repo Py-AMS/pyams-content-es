@@ -44,12 +44,12 @@ from pyams_viewlet.viewlet import viewlet_config
 from pyams_workflow.interfaces import IWorkflow
 from pyams_zmi.form import AdminModalEditForm
 from pyams_zmi.interfaces import IAdminLayer
-from pyams_zmi.interfaces.viewlet import IActionsViewletManager
+from pyams_zmi.interfaces.viewlet import IContextActionsDropdownMenu
 
 
 @viewlet_config(name='content-index.menu',
                 context=IDocumentIndexTarget, layer=IAdminLayer,
-                manager=IActionsViewletManager, weight=30,
+                manager=IContextActionsDropdownMenu, weight=30,
                 permission=MANAGE_CONTENT_PERMISSION)
 class ContentIndexCheckerMenu(MenuItem):
     """Content index checker menu"""
