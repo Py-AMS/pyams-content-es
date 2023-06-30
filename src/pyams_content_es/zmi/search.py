@@ -31,6 +31,7 @@ from pyams_content.shared.common.zmi.search import ISharedToolAdvancedSearchQuer
     SharedToolAdvancedSearchResultsValues, SharedToolQuickSearchResultsTable, \
     SharedToolQuickSearchResultsTableValues
 from pyams_content_es.document import ElasticResultSet
+from pyams_content_es.interfaces import IContentIndexerUtility, IQuickSearchSettings
 from pyams_elastic.include import get_client
 from pyams_form.field import Fields
 from pyams_form.interfaces.form import IFormFields
@@ -71,6 +72,8 @@ class EsSharedToolQuickSearchResultsTableValues(SharedToolQuickSearchResultsTabl
         if query.startswith('+'):
             params = Q('term', reference_id=sequence.get_full_oid(query))
         else:
+            indexer = get_utility(IContentIndexerUtility)
+            settings = IQuickSearchSettings(indexer)
             vocabulary = getVocabularyRegistry().get(self.context,
                                                      SHARED_CONTENT_TYPES_VOCABULARY)
             params = (
@@ -79,8 +82,9 @@ class EsSharedToolQuickSearchResultsTableValues(SharedToolQuickSearchResultsTabl
                 (Q('term', reference_id=sequence.get_full_oid(query)) |
                  Q('simple_query_string',
                    query=query,
-                   fields=['title.*', 'short_name.*', 'header.*', 'description.*'],
-                   default_operator='and')))
+                   fields=settings.search_fields,
+                   analyzer=settings.analyzer,
+                   default_operator=settings.default_operator)))
         client = get_client(self.request)
         search = Search(using=client.es, index=client.index) \
             .query(params) \
@@ -142,12 +146,15 @@ class EsSharedToolAdvancedSearchResultsValues(SharedToolAdvancedSearchResultsVal
                         Q('simple_query_string',
                           query=query))
                 else:
+                    indexer = get_utility(IContentIndexerUtility)
+                    settings = IQuickSearchSettings(indexer)
                     params &= (
                         Q('term', reference_id=sequence.get_full_oid(query)) |
                         Q('simple_query_string',
                           query=query,
-                          fields=['title.*', 'short_name.*', 'header.*', 'description.*'],
-                          default_operator='and'))
+                          fields=settings.search_fields,
+                          analyzer=settings.analyzer,
+                          default_operator=settings.default_operator))
         if data.get('owner'):
             params &= Q('term', owner_id=data['owner'])
         if data.get('status'):

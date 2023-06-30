@@ -16,15 +16,13 @@ This module defines a few components used to handle Elasticsearch content
 indexer utility properties.
 """
 
-__docformat__ = 'restructuredtext'
-
 from zope.interface import Interface
 
-from pyams_content_es.interfaces import IContentIndexerUtility, INDEXER_LABEL
+from pyams_content_es.interfaces import IContentIndexerUtility, INDEXER_LABEL, IQuickSearchSettings, IUserSearchSettings
 from pyams_form.ajax import ajax_form_config
 from pyams_form.button import Buttons, handler
 from pyams_form.field import Fields
-from pyams_form.interfaces.form import IInnerSubForm
+from pyams_form.interfaces.form import IGroup, IInnerSubForm
 from pyams_form.subform import InnerDisplayForm
 from pyams_layer.interfaces import IPyAMSLayer
 from pyams_security.interfaces.base import MANAGE_SYSTEM_PERMISSION
@@ -32,12 +30,14 @@ from pyams_skin.schema.button import ActionButton
 from pyams_template.template import template_config
 from pyams_utils.adapter import adapter_config
 from pyams_utils.url import absolute_url
-from pyams_zmi.form import AdminInnerDisplayForm, AdminModalDisplayForm, AdminModalEditForm
+from pyams_zmi.form import AdminModalDisplayForm, AdminModalEditForm, FormGroupSwitcher
 from pyams_zmi.interfaces import IAdminLayer, IObjectLabel
 from pyams_zmi.interfaces.form import IModalEditFormButtons
 from pyams_zmi.interfaces.table import ITableElementEditor
 from pyams_zmi.table import TableElementEditor
 from pyams_zmi.utils import get_object_label
+
+__docformat__ = 'restructuredtext'
 
 from pyams_content_es import _
 
@@ -94,6 +94,54 @@ class ContentIndexerPropertiesEditForm(AdminModalEditForm):
         """Apply button handler"""
         super().handle_apply(self, action)
 
+
+class ContentIndexerSettingsGroup(FormGroupSwitcher):
+    """Content indexer settings group"""
+
+    switcher_mode = 'always'
+
+    def update_widgets(self, prefix=None):
+        super().update_widgets(prefix)
+        fields = self.widgets.get('search_fields')
+        if fields is not None:
+            fields.rows = 5
+
+
+@adapter_config(name='quick-settings',
+                required=(IContentIndexerUtility, IAdminLayer, ContentIndexerPropertiesEditForm),
+                provides=IGroup)
+class ContentIndexerQuickSearchSettingsGroup(ContentIndexerSettingsGroup):
+    """Content index quick search settings group"""
+
+    legend = _("Quick search settings")
+
+    prefix = 'quick_settings.'
+    fields = Fields(IQuickSearchSettings)
+    weight = 10
+
+    def get_content(self):
+        return IQuickSearchSettings(self.context)
+
+
+@adapter_config(name='user-settings',
+                required=(IContentIndexerUtility, IAdminLayer, ContentIndexerPropertiesEditForm),
+                provides=IGroup)
+class ContentIndexerUserSearchSettingsGroup(ContentIndexerSettingsGroup):
+    """Content index user search settings group"""
+
+    legend = _("User search settings")
+
+    prefix = 'user_settings.'
+    fields = Fields(IUserSearchSettings)
+    weight = 20
+
+    def get_content(self):
+        return IUserSearchSettings(self.context)
+
+
+#
+# Indexer test form
+#
 
 @ajax_form_config(name='test-indexer.html',
                   context=IContentIndexerUtility, layer=IPyAMSLayer,

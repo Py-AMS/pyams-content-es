@@ -10,15 +10,17 @@
 # FOR A PARTICULAR PURPOSE.
 #
 
-"""PyAMS content ES.interfaces module
+"""PyAMS_content_es.interfaces module
 
 """
 
 import logging
+from zope.annotation.interfaces import IAttributeAnnotatable
 from zope.interface import Interface
-from zope.schema import Choice
+from zope.schema import Choice, TextLine
 
 from pyams_utils.interfaces import ZODB_CONNECTIONS_VOCABULARY_NAME
+from pyams_utils.schema import TextLineListField
 from pyams_zmq.interfaces import IZMQProcess
 
 from pyams_content_es import _
@@ -50,7 +52,7 @@ class IContentIndexerHandler(Interface):
     """Content indexer handler interface"""
 
 
-class IContentIndexerUtility(Interface):
+class IContentIndexerUtility(IAttributeAnnotatable):
     """Content indexer utility interface"""
 
     zodb_name = Choice(title=_("ZODB connection name"),
@@ -78,3 +80,48 @@ class IDocumentIndexInfo(Interface):
 
 class IDocumentIndexTarget(Interface):
     """Document index target marker interface"""
+
+
+#
+# Search settings interfaces
+#
+
+class IBaseSearchSettings(Interface):
+    """Base search settings interface"""
+
+    analyzer = TextLine(title=_("Search analyzer"),
+                        description=_("Used search analyzer; check index settings to get list of "
+                                      "available analyzers..."),
+                        required=True,
+                        default='default')
+
+    search_fields = TextLineListField(title=_("Quick search fields"),
+                                      description=_("List of fields used for quick search in backoffice, "
+                                                    "with their respective weight (if any)"),
+                                      required=True,
+                                      default=[
+                                          'title.*',
+                                          'short_name.*',
+                                          'header.*',
+                                          'description.*'
+                                      ])
+
+    default_operator = Choice(title=_("Default operator"),
+                              description=_("This is the default operator used to combine search terms"),
+                              values=('AND', 'OR'),
+                              required=True,
+                              default='AND')
+
+
+QUICK_SEARCH_SETTINGS_KEY = 'pyams_content_es.quick_settings'
+
+
+class IQuickSearchSettings(IBaseSearchSettings):
+    """Backoffice quick search settings interface"""
+
+
+USER_SEARCH_SETTINGS_KEY = 'pyams_content_es.user_settings'
+
+
+class IUserSearchSettings(IBaseSearchSettings):
+    """Default user search settings"""

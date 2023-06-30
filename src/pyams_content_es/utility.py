@@ -10,7 +10,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 
-"""PyAMS_*** module
+"""PyAMS_content_es.utility module
 
 """
 
@@ -22,7 +22,9 @@ from zope.intid import IIntIds
 from zope.schema.fieldproperty import FieldProperty
 
 from pyams_content_es.interfaces import IContentIndexerUtility, INDEXER_AUTH_KEY, \
-    INDEXER_HANDLER_KEY, LOGGER
+    INDEXER_HANDLER_KEY, IQuickSearchSettings, IUserSearchSettings, LOGGER, QUICK_SEARCH_SETTINGS_KEY, \
+    USER_SEARCH_SETTINGS_KEY
+from pyams_utils.adapter import adapter_config, get_annotation_adapter
 from pyams_utils.factory import factory_config
 from pyams_utils.registry import get_pyramid_registry, get_utility
 from pyams_utils.transaction import TransactionClient, transactional
@@ -94,3 +96,45 @@ class ContentIndexerUtility(Persistent, Contained):
         """Remove document from Elasticsearch index"""
         handler = IndexUpdateHandler(self)
         return handler.update_index('unindex_document', document)
+
+
+#
+# Backoffice quick search settings
+#
+
+@factory_config(IQuickSearchSettings)
+class QuickSearchSettings(Persistent, Contained):
+    """Quick search settings persistent class"""
+
+    analyzer = FieldProperty(IQuickSearchSettings['analyzer'])
+    search_fields = FieldProperty(IQuickSearchSettings['search_fields'])
+    default_operator = FieldProperty(IQuickSearchSettings['default_operator'])
+
+
+@adapter_config(required=IContentIndexerUtility,
+                provides=IQuickSearchSettings)
+def content_indexer_quick_search_settings(context):
+    """Content indexer quick search settings"""
+    return get_annotation_adapter(context, QUICK_SEARCH_SETTINGS_KEY,
+                                  IQuickSearchSettings)
+
+
+#
+# Default user search settings
+#
+
+@factory_config(IUserSearchSettings)
+class UserSearchSettings(Persistent, Contained):
+    """User search settings persistent class"""
+
+    analyzer = FieldProperty(IUserSearchSettings['analyzer'])
+    search_fields = FieldProperty(IUserSearchSettings['search_fields'])
+    default_operator = FieldProperty(IUserSearchSettings['default_operator'])
+
+
+@adapter_config(required=IContentIndexerUtility,
+                provides=IUserSearchSettings)
+def content_indexer_user_search_settings(context):
+    """Content indexer user search settings"""
+    return get_annotation_adapter(context, USER_SEARCH_SETTINGS_KEY,
+                                  IUserSearchSettings)
