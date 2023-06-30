@@ -33,4 +33,7 @@ full text search, including attachments, using ES *ingest-attachment* plug-in.
 
 All you have to do is to include *pyams_content_es* package **INSTEAD OF** default
 *pyams_content* in your Pyramid application configuration file, and to set a few properties
-to define Elasticsearch connexion and index settings...
+to define Elasticsearch connexion and index settings.
+
+Look at *INSTALL.rst* to get instructions about how to configure an Elasticsearch index for
+PyAMS...
