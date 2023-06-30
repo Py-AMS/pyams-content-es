@@ -24,19 +24,22 @@ from transaction.interfaces import ITransactionManager
 from zope.dublincore.interfaces import IZopeDublinCore
 from zope.interface import classImplements
 from zope.intid import IIntIds
-from zope.lifecycleevent import IObjectAddedEvent, IObjectModifiedEvent, IObjectRemovedEvent
+from zope.lifecycleevent import ObjectModifiedEvent
+from zope.lifecycleevent.interfaces import IObjectAddedEvent, IObjectModifiedEvent, IObjectRemovedEvent
 
 from pyams_catalog.query import CatalogResultSet
-from pyams_content.shared.common import IWfSharedContent, IWfSharedContentRoles, WfSharedContent
+from pyams_content.shared.common import WfSharedContent
+from pyams_content.shared.common.interfaces import IPreventSharedContentUpdateSubscribers, IWfSharedContent, \
+    IWfSharedContentRoles
 from pyams_content.shared.common.interfaces.types import IWfTypedSharedContent
-from pyams_content_es.interfaces import IContentIndexerUtility, IDocumentIndexInfo, \
-    IDocumentIndexTarget
+from pyams_content_es.interfaces import IContentIndexerUtility, IDocumentIndexInfo, IDocumentIndexTarget
 from pyams_elastic.include import get_client
 from pyams_elastic.mixin import ESField, ESKeyword, ESMapping, ESText, ElasticMixin
 from pyams_sequence.interfaces import ISequentialIdInfo
 from pyams_utils.adapter import adapter_config
 from pyams_utils.interfaces.traversing import IPathElements
 from pyams_utils.registry import get_pyramid_registry, get_utility, query_utility
+from pyams_utils.traversing import get_parent
 from pyams_workflow.interfaces import IWorkflowState
 
 
@@ -207,3 +210,24 @@ def handle_removed_document(event):
     if indexer is None:
         return
     indexer.unindex_document(event.object)
+
+
+@subscriber(IObjectAddedEvent)
+@subscriber(IObjectModifiedEvent)
+@subscriber(IObjectRemovedEvent)
+def handle_modified_inner_content(event):
+    """Handle modified shared object inner content
+
+    This generic subscriber is used to update index on any content modification.
+    """
+    source = event.object
+    if IWfSharedContent.providedBy(source):
+        return
+    registry = get_pyramid_registry()
+    handler = registry.queryAdapter(source, IPreventSharedContentUpdateSubscribers)
+    if handler is not None:
+        return
+    content = get_parent(event.object, IWfSharedContent, allow_context=False)
+    if content is None:
+        return
+    registry.notify(ObjectModifiedEvent(content))
