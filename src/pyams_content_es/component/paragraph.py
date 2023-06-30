@@ -20,6 +20,8 @@ __docformat__ = 'restructuredtext'
 from pyams_content.component.paragraph.interfaces import IBaseParagraph, IParagraphContainer, \
     IParagraphContainerTarget
 from pyams_content.component.paragraph.interfaces.html import IHTMLParagraph, IRawParagraph
+from pyams_content.component.video.interfaces import IExternalVideoParagraph
+from pyams_content_es.component import get_index_values, html_to_index
 from pyams_content_es.interfaces import IDocumentIndexInfo
 from pyams_utils.adapter import adapter_config
 from pyams_utils.html import html_to_text
@@ -46,9 +48,8 @@ def paragraph_container_index_info(context):
 def base_paragraph_index_info(context):
     """Base paragraph index info"""
     info = {}
-    for lang, title in (getattr(context, 'title', {}) or {}).items():
-        if title:
-            info.setdefault(lang, title)
+    get_index_values(context, info,
+                     i18n_fields=('title',))
     return info
 
 
@@ -59,8 +60,16 @@ def base_paragraph_index_info(context):
 def html_paragraph_index_info(context):
     """HTML paragraph index info"""
     info = base_paragraph_index_info(context)
-    for lang, body in (getattr(context, 'body', {}) or {}).items():
-        if body:
-            info[lang] = f"{info.get(lang, '')}\n" \
-                         f"{html_to_text(body).replace(chr(13), '')}"
+    get_index_values(context, info,
+                     i18n_fields=(('body', html_to_index),))
+    return info
+
+
+@adapter_config(required=IExternalVideoParagraph,
+                provides=IDocumentIndexInfo)
+def external_video_paragraph_index_info(context):
+    """External video paragraph index info"""
+    info = base_paragraph_index_info(context)
+    get_index_values(context, info,
+                     i18n_fields=(('description', html_to_index),))
     return info
