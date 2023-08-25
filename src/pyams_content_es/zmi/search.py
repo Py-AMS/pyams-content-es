@@ -123,11 +123,8 @@ def es_shared_tool_advanced_search_form_fields(context, request, form):
 class EsSharedToolAdvancedSearchResultsValues(SharedToolAdvancedSearchResultsValues):
     """Elasticsearch shared tool advanced search results adapter"""
 
-    @property
-    def values(self):
-        form = SharedToolAdvancedSearchForm(self.context, self.request)
-        form.update()
-        data, _errors = form.extract_data()
+    def get_params(self, data):
+        """Extract Elasticsearch query params from incoming request"""
         intids = get_utility(IIntIds)
         vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = \
@@ -180,6 +177,15 @@ class EsSharedToolAdvancedSearchResultsValues(SharedToolAdvancedSearchResultsVal
         if data.get('collections'):
             collections = [intids.register(collection) for collection in data['collections']]
             params &= Q('terms', collections=collections)
+        return params
+
+    @property
+    def values(self):
+        """Query values getter"""
+        form = SharedToolAdvancedSearchForm(self.context, self.request)
+        form.update()
+        data, _errors = form.extract_data()
+        params = self.get_params(data)
         client = get_client(self.request)
         search = Search(using=client.es, index=client.index) \
             .query(params) \
@@ -190,7 +196,7 @@ class EsSharedToolAdvancedSearchResultsValues(SharedToolAdvancedSearchResultsVal
                 'order': 'desc'
             }
         }]
-        if query:
+        if data.get('query'):
             sort_order.insert(0, {
                 '_score': {
                     'order': 'desc'
@@ -270,11 +276,8 @@ def es_site_root_advanced_search_form_fields(context, request, form):
 class EsSiteRootAdvancedSearchResultsValues(SiteRootAdvancedSearchResultsValues):
     """Elasticsearch site root advanced search results adapter"""
 
-    @property
-    def values(self):
-        form = SiteRootAdvancedSearchForm(self.context, self.request)
-        form.update()
-        data, _errors = form.extract_data()
+    def get_params(self, data):
+        """Extract Elasticsearch query params from incoming request"""
         intids = get_utility(IIntIds)
         vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = Q('terms', content_type=list(vocabulary.by_value.keys()))
@@ -320,6 +323,14 @@ class EsSiteRootAdvancedSearchResultsValues(SiteRootAdvancedSearchResultsValues)
         if data.get('collections'):
             collections = [intids.register(collection) for collection in data['collections']]
             params &= Q('terms', collections=collections)
+        return params
+
+    @property
+    def values(self):
+        form = SiteRootAdvancedSearchForm(self.context, self.request)
+        form.update()
+        data, _errors = form.extract_data()
+        params = self.get_params(data)
         client = get_client(self.request)
         search = Search(using=client.es, index=client.index) \
             .query(params) \
@@ -330,7 +341,7 @@ class EsSiteRootAdvancedSearchResultsValues(SiteRootAdvancedSearchResultsValues)
                 'order': 'desc'
             }
         }]
-        if query:
+        if data.get('query'):
             sort_order.insert(0, {
                 '_score': {
                     'order': 'desc'
