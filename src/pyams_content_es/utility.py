@@ -129,6 +129,7 @@ class UserSearchSettings(Persistent, Contained):
 
     analyzer = FieldProperty(IUserSearchSettings['analyzer'])
     search_fields = FieldProperty(IUserSearchSettings['search_fields'])
+    fulltext_search_fields = FieldProperty(IUserSearchSettings['fulltext_search_fields'])
     default_operator = FieldProperty(IUserSearchSettings['default_operator'])
 
 
