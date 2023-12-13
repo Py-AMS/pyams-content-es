@@ -95,7 +95,7 @@ class IBaseSearchSettings(Interface):
                         required=True,
                         default='default')
 
-    search_fields = TextLineListField(title=_("Quick search fields"),
+    search_fields = TextLineListField(title=_("Search fields"),
                                       description=_("List of fields used for quick search in backoffice, "
                                                     "with their respective weight (if any)"),
                                       required=True,
@@ -125,3 +125,14 @@ USER_SEARCH_SETTINGS_KEY = 'pyams_content_es.user_settings'
 
 class IUserSearchSettings(IBaseSearchSettings):
     """Default user search settings"""
+
+    fulltext_search_fields = TextLineListField(title=_("Fulltext search fields"),
+                                               description=_("List of fields used for user fulltext search, "
+                                                             "with their respective weight (if any)"),
+                                               required=True,
+                                               default=[
+                                                   'title.*',
+                                                   'short_name.*',
+                                                   'header.*',
+                                                   'description.*'
+                                               ])
