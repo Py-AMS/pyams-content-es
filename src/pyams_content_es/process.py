@@ -206,7 +206,14 @@ class ContentIndexerHandler:
         else:
             messages.extend([
                 "Elasticsearch client properties:",
-                f" - servers: {es_client.es.transport.hosts}",
+                f" - nodes:"
+            ])
+            for config in es_client.es.transport.node_pool.node_selector.node_configs:
+                messages.extend([
+                    f"{' ' * 6}{line}"
+                    for line in pformat(config, indent=5).split('\n')
+                ])
+            messages.extend([
                 f" - index name: {es_client.index}",
                 f" - indexing: {'DISABLED' if es_client.disable_indexing else 'enabled'}",
                 ""
@@ -215,7 +222,7 @@ class ContentIndexerHandler:
             messages.append(f"Server ping: {'OK' if ping else 'KO'}")
             if ping:
                 messages.extend(['', 'Server info:'])
-                messages.extend(pformat(es_client.es.info()).split('\n'))
+                messages.extend(pformat(es_client.es.info().body).split('\n'))
         return [200, '\n'.join(messages)]
 
     @staticmethod
