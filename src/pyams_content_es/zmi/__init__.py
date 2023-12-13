@@ -26,13 +26,14 @@ from pyams_form.interfaces.form import IGroup, IInnerSubForm
 from pyams_form.subform import InnerDisplayForm
 from pyams_layer.interfaces import IPyAMSLayer
 from pyams_security.interfaces.base import MANAGE_SYSTEM_PERMISSION
+from pyams_skin.interfaces.view import IModalPage
 from pyams_skin.schema.button import ActionButton
 from pyams_template.template import template_config
 from pyams_utils.adapter import adapter_config
 from pyams_utils.url import absolute_url
 from pyams_zmi.form import AdminModalDisplayForm, AdminModalEditForm, FormGroupSwitcher
 from pyams_zmi.interfaces import IAdminLayer, IObjectLabel
-from pyams_zmi.interfaces.form import IModalEditFormButtons
+from pyams_zmi.interfaces.form import IFormTitle, IModalEditFormButtons
 from pyams_zmi.interfaces.table import ITableElementEditor
 from pyams_zmi.table import TableElementEditor
 from pyams_zmi.utils import get_object_label
@@ -73,10 +74,7 @@ class IContentIndexerPropertiesEditFormButtons(IModalEditFormButtons):
 class ContentIndexerPropertiesEditForm(AdminModalEditForm):
     """Content indexer properties edit form"""
 
-    @property
-    def title(self):
-        return get_object_label(self.context, self.request, self)
-
+    modal_class = 'modal-xl'
     legend = _("Document indexer properties")
     fields = Fields(IContentIndexerUtility)
     buttons = Buttons(IContentIndexerPropertiesEditFormButtons).select('test', 'apply', 'close')
@@ -95,16 +93,22 @@ class ContentIndexerPropertiesEditForm(AdminModalEditForm):
         super().handle_apply(self, action)
 
 
+@adapter_config(required=(IContentIndexerUtility, IAdminLayer, IModalPage),
+                provides=IFormTitle)
+def content_indexer_form_title(context, request, view):
+    return get_object_label(context, request, view)
+
+
 class ContentIndexerSettingsGroup(FormGroupSwitcher):
     """Content indexer settings group"""
 
     switcher_mode = 'always'
 
-    def update_widgets(self, prefix=None):
-        super().update_widgets(prefix)
+    def update_widgets(self, prefix=None, use_form_mode=True):
+        super().update_widgets(prefix, use_form_mode)
         fields = self.widgets.get('search_fields')
         if fields is not None:
-            fields.rows = 5
+            fields.rows = 8
 
 
 @adapter_config(name='quick-settings',
@@ -132,11 +136,18 @@ class ContentIndexerUserSearchSettingsGroup(ContentIndexerSettingsGroup):
     legend = _("User search settings")
 
     prefix = 'user_settings.'
-    fields = Fields(IUserSearchSettings)
+    fields = Fields(IUserSearchSettings).select('analyzer', 'search_fields',
+                                                'fulltext_search_fields', 'default_operator')
     weight = 20
 
     def get_content(self):
         return IUserSearchSettings(self.context)
+
+    def update_widgets(self, prefix=None, use_form_mode=True):
+        super().update_widgets(prefix, use_form_mode)
+        fields = self.widgets.get('fulltext_search_fields')
+        if fields is not None:
+            fields.rows = 8
 
 
 #
@@ -148,10 +159,6 @@ class ContentIndexerUserSearchSettingsGroup(ContentIndexerSettingsGroup):
                   permission=MANAGE_SYSTEM_PERMISSION)
 class ContentIndexerTestForm(AdminModalDisplayForm):
     """Content indexer test form"""
-
-    @property
-    def title(self):
-        return get_object_label(self.context, self.request, self)
 
 
 @adapter_config(name='test',

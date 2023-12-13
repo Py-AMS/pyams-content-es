@@ -99,12 +99,8 @@ class IContentIndexCheckerFormButtons(Interface):
 class ContentIndexCheckerForm(AdminModalEditForm):
     """Content index checker form"""
 
-    @property
-    def title(self):
-        """Title getter"""
-        return II18n(self.context).query_attribute('title', request=self.request)
-
-    legend = _("Check index content")
+    subtitle = _("Index content check")
+    legend = _("Current index content")
 
     fields = Fields(IContentIndexCheckerFormFields)
     buttons = Buttons(IContentIndexCheckerFormButtons)
