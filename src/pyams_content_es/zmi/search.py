@@ -24,12 +24,12 @@ from zope.schema.vocabulary import getVocabularyRegistry
 from pyams_content.root.zmi.search import ISiteRootAdvancedSearchQuery, \
     SiteRootAdvancedSearchForm, SiteRootAdvancedSearchResultsTable, \
     SiteRootAdvancedSearchResultsValues, SiteRootQuickSearchResultsTable, \
-    SiteRootQuickSearchResultsTableValues
+    SiteRootQuickSearchResultsValues
 from pyams_content.shared.common import IBaseSharedTool, SHARED_CONTENT_TYPES_VOCABULARY
 from pyams_content.shared.common.zmi.search import ISharedToolAdvancedSearchQuery, \
     SharedToolAdvancedSearchForm, SharedToolAdvancedSearchResultsTable, \
     SharedToolAdvancedSearchResultsValues, SharedToolQuickSearchResultsTable, \
-    SharedToolQuickSearchResultsTableValues
+    SharedToolQuickSearchResultsValues
 from pyams_content_es.document import ElasticResultSet
 from pyams_content_es.interfaces import IContentIndexerUtility, IQuickSearchSettings
 from pyams_elastic.include import get_client
@@ -57,8 +57,8 @@ from pyams_content_es import _
 
 @adapter_config(required=(IBaseSharedTool, IPyAMSLayer, SharedToolQuickSearchResultsTable),
                 provides=IValues)
-class EsSharedToolQuickSearchResultsTableValues(SharedToolQuickSearchResultsTableValues):
-    """Elasticsearch shared tool quick search results table values adapter"""
+class EsSharedToolQuickSearchResultsValues(SharedToolQuickSearchResultsValues):
+    """Elasticsearch shared tool quick search results values adapter"""
 
     @property
     def values(self):
@@ -215,7 +215,7 @@ class EsSharedToolAdvancedSearchResultsValues(SharedToolAdvancedSearchResultsVal
 
 @adapter_config(required=(ISiteRoot, IPyAMSLayer, SiteRootQuickSearchResultsTable),
                 provides=IValues)
-class EsSiteRootQuickSearchResultsTableValues(SiteRootQuickSearchResultsTableValues):
+class EsSiteRootQuickSearchResultsValues(SiteRootQuickSearchResultsValues):
     """Elasticsearch site root quick search results table values adapter"""
 
     @property
