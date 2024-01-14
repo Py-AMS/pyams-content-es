@@ -24,7 +24,7 @@ from pyams_content_es.interfaces import IContentIndexerUtility, IDocumentIndexTa
 from pyams_elastic.include import client_from_config
 from pyams_layer.skin import apply_skin
 from pyams_site.site import site_factory
-from pyams_utils.container import find_objects_providing
+from pyams_utils.finder import find_objects_providing
 from pyams_utils.registry import query_utility, set_local_registry
 from pyams_zmi.skin import AdminSkin
 from pyams_zmi.utils import get_object_hint, get_object_label
