@@ -23,7 +23,7 @@ DOCS = os.path.join(os.path.dirname(__file__),
 README = os.path.join(DOCS, 'README.rst')
 HISTORY = os.path.join(DOCS, 'HISTORY.rst')
 
-version = '1.99.0'
+version = '1.99.0.1'
 long_description = open(README).read() + '\n\n' + open(HISTORY).read()
 
 tests_require = [
@@ -61,10 +61,36 @@ setup(name='pyams_content_es',
       install_requires=[
           'setuptools',
           # -*- Extra requirements: -*-
+          'elasticsearch',
+          'elasticsearch_dsl',
+          'persistent',
+          'pyams_catalog',
           'pyams_content',
           'pyams_elastic',
-          'pyams_utils > 2.1.0'
-          'pyramid'
+          'pyams_form',
+          'pyams_i18n',
+          'pyams_layer',
+          'pyams_security',
+          'pyams_sequence',
+          'pyams_site',
+          'pyams_skin',
+          'pyams_table',
+          'pyams_template',
+          'pyams_thesaurus',
+          'pyams_utils > 2.1.0',
+          'pyams_viewlet',
+          'pyams_workflow',
+          'pyams_zmi',
+          'pyams_zmq',
+          'pyramid',
+          'transaction',
+          'zope.annotation',
+          'zope.container',
+          'zope.dublincore',
+          'zope.interface',
+          'zope.intid',
+          'zope.lifecycleevent',
+          'zope.schema'
       ],
       entry_points={
           'console_scripts': [
