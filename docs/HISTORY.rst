@@ -1,6 +1,6 @@
 Changelog
 =========
 
-1.0.0
------
- - initial release
+1.99.0
+------
+ - first preliminary release

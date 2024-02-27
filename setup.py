@@ -23,7 +23,7 @@ DOCS = os.path.join(os.path.dirname(__file__),
 README = os.path.join(DOCS, 'README.rst')
 HISTORY = os.path.join(DOCS, 'HISTORY.rst')
 
-version = '1.0.0'
+version = '1.99.0'
 long_description = open(README).read() + '\n\n' + open(HISTORY).read()
 
 tests_require = [
@@ -63,6 +63,7 @@ setup(name='pyams_content_es',
           # -*- Extra requirements: -*-
           'pyams_content',
           'pyams_elastic',
+          'pyams_utils > 2.1.0'
           'pyramid'
       ],
       entry_points={
