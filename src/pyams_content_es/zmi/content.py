@@ -24,6 +24,7 @@ from zope.interface import Interface, implementer
 from zope.schema import TextLine
 from zope.schema.fieldproperty import FieldProperty
 
+from pyams_content.feature.search import ISearchFolder
 from pyams_content.interfaces import MANAGE_CONTENT_PERMISSION
 from pyams_content_es import _
 from pyams_content_es.interfaces import IDocumentIndexTarget
@@ -37,7 +38,7 @@ from pyams_skin.interfaces.viewlet import IFormHeaderViewletManager
 from pyams_skin.schema.button import CloseButton, SubmitButton
 from pyams_skin.viewlet.help import AlertMessage
 from pyams_skin.viewlet.menu import MenuItem
-from pyams_utils.adapter import ContextRequestViewAdapter, adapter_config
+from pyams_utils.adapter import ContextRequestViewAdapter, NullAdapter, adapter_config
 from pyams_utils.date import format_datetime
 from pyams_utils.timezone import tztime
 from pyams_viewlet.viewlet import viewlet_config
@@ -59,6 +60,14 @@ class ContentIndexCheckerMenu(MenuItem):
 
     href = 'content-index.html'
     modal_target = True
+
+
+@viewlet_config(name='content-index.menu',
+                context=ISearchFolder, layer=IAdminLayer,
+                manager=IContextActionsDropdownMenu, weight=30,
+                permission=MANAGE_CONTENT_PERMISSION)
+class SearchFolderIndexCheckerMenu(NullAdapter):
+    """Search folder index checker menu"""
 
 
 class IContentIndexCheckerFormFields(Interface):
