@@ -22,7 +22,7 @@ from pyams_content_es.interfaces import IContentIndexerUtility, INDEXER_LABEL, I
 from pyams_form.ajax import ajax_form_config
 from pyams_form.button import Buttons, handler
 from pyams_form.field import Fields
-from pyams_form.interfaces.form import IGroup, IInnerSubForm
+from pyams_form.interfaces.form import IFormContent, IGroup, IInnerSubForm
 from pyams_form.subform import InnerDisplayForm
 from pyams_layer.interfaces import IPyAMSLayer
 from pyams_security.interfaces.base import MANAGE_SYSTEM_PERMISSION
@@ -123,8 +123,12 @@ class ContentIndexerQuickSearchSettingsGroup(ContentIndexerSettingsGroup):
     fields = Fields(IQuickSearchSettings)
     weight = 10
 
-    def get_content(self):
-        return IQuickSearchSettings(self.context)
+
+@adapter_config(required=(IContentIndexerUtility, IAdminLayer, ContentIndexerQuickSearchSettingsGroup),
+                provides=IFormContent)
+def content_indexer_quick_search_settings_content(context, request, group):
+    """Content indexer quick search settings edit form group content getter"""
+    return IQuickSearchSettings(context)
 
 
 @adapter_config(name='user-settings',
@@ -140,14 +144,18 @@ class ContentIndexerUserSearchSettingsGroup(ContentIndexerSettingsGroup):
                                                 'fulltext_search_fields', 'default_operator')
     weight = 20
 
-    def get_content(self):
-        return IUserSearchSettings(self.context)
-
     def update_widgets(self, prefix=None, use_form_mode=True):
         super().update_widgets(prefix, use_form_mode)
         fields = self.widgets.get('fulltext_search_fields')
         if fields is not None:
             fields.rows = 8
+
+
+@adapter_config(required=(IContentIndexerUtility, IAdminLayer, ContentIndexerUserSearchSettingsGroup),
+                provides=IFormContent)
+def content_indexer_user_search_group_content(context, request, group):
+    """Content indexer user search settings edit form group content getter"""
+    return IUserSearchSettings(context)
 
 
 #
