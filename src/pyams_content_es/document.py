@@ -29,16 +29,19 @@ from zope.lifecycleevent.interfaces import IObjectAddedEvent, IObjectModifiedEve
 
 from pyams_catalog.query import CatalogResultSet
 from pyams_content.shared.common import WfSharedContent
-from pyams_content.shared.common.interfaces import IPreventSharedContentUpdateSubscribers, IWfSharedContent, \
+from pyams_content.shared.common.interfaces import IPreventSharedContentUpdateSubscribers, ISharedTool, \
+    IWfSharedContent, \
     IWfSharedContentRoles
 from pyams_content.shared.common.interfaces.types import IWfTypedSharedContent
 from pyams_content_es.interfaces import IContentIndexerUtility, IDocumentIndexInfo, IDocumentIndexTarget
 from pyams_elastic.include import get_client
 from pyams_elastic.mixin import ESField, ESKeyword, ESMapping, ESText, ElasticMixin
+from pyams_i18n.interfaces import II18n
 from pyams_sequence.interfaces import ISequentialIdInfo
 from pyams_utils.adapter import adapter_config
 from pyams_utils.interfaces.traversing import IPathElements
 from pyams_utils.registry import get_pyramid_registry, get_utility, query_utility
+from pyams_utils.request import query_request
 from pyams_utils.traversing import get_parent
 from pyams_workflow.interfaces import IWorkflowState
 
@@ -107,6 +110,40 @@ class ElasticDocumentMixin(ElasticMixin):
         """Contributor IDs getter"""
         return list(IWfSharedContentRoles(self).contributors or ())
 
+    @property
+    def facet_label(self):
+        """Facet label getter"""
+        request = query_request()
+        if IWfTypedSharedContent.providedBy(self):
+            data_type = self.get_data_type()
+            if data_type is not None:
+                i18n = II18n(data_type)
+                return i18n.query_attributes_in_order(('facets_label', 'label'),
+                                                      request=request)
+        shared_tool = get_parent(self, ISharedTool)
+        if shared_tool is not None:
+            i18n = II18n(shared_tool)
+            return i18n.query_attributes_in_order(('facets_label', 'label', 'title'),
+                                                  request=request)
+        return None
+
+    @property
+    def facet_type_label(self):
+        """Facet-type label getter"""
+        request = query_request()
+        if IWfTypedSharedContent.providedBy(self):
+            data_type = self.get_data_type()
+            if data_type is not None:
+                i18n = II18n(data_type)
+                return i18n.query_attributes_in_order(('facets_type_label', 'label'),
+                                                      request=request)
+        shared_tool = get_parent(self, ISharedTool)
+        if shared_tool is not None:
+            i18n = II18n(shared_tool)
+            return i18n.query_attributes_in_order(('facets_type_label', 'label', 'title'),
+                                                  request=request)
+        return None
+
     def elastic_mapping(self):
         """Elasticsearch mapping getter"""
         return IDocumentIndexInfo(self)
@@ -135,6 +172,8 @@ def shared_content_index_info(content):
                                           ESKeyword('owner_id'),
                                           ESKeyword('contributor_id'),
                                           ESKeyword('content_type'),
+                                          ESKeyword('facet_label'),
+                                          ESKeyword('facet_type_label'),
                                           ESText('title'),
                                           ESText('short_name'),
                                           ESText('header'),
@@ -153,6 +192,8 @@ def typed_shared_content_index_info(content):
                                           ESKeyword('contributor_id'),
                                           ESKeyword('content_type'),
                                           ESKeyword('data_type'),
+                                          ESKeyword('facet_label'),
+                                          ESKeyword('facet_type_label'),
                                           ESText('title'),
                                           ESText('short_name'),
                                           ESText('header'),
