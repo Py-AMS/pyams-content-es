@@ -64,7 +64,7 @@ class EsViewTagsUserQuery(ContextAdapter):
     @staticmethod
     def get_user_params(request):
         """Query user params getter"""
-        tags = request.params.get('tags')
+        tags = request.params.getall('tags')
         if not tags:
             return
         manager = ITagsManager(request.root, None)
@@ -80,8 +80,9 @@ class EsViewTagsUserQuery(ContextAdapter):
                 **{'tags': [
                     intids.queryId(term)
                     for term in [
-                        thesaurus.terms.get(tag)
+                        thesaurus.terms.get(value)
                         for tag in tags
+                        for value in tag.split(',')
                     ]
                     if term is not None
                 ]})
@@ -137,8 +138,9 @@ class EsViewThemesUserQuery(ContextAdapter):
                 **{'themes.terms': [
                     intids.queryId(term)
                     for term in [
-                        thesaurus.terms.get(tag)
+                        thesaurus.terms.get(value)
                         for tag in themes
+                        for value in tag.split(',')
                     ]
                     if term is not None
                 ]})
@@ -194,8 +196,9 @@ class EsViewCollectionsUserQuery(ContextAdapter):
                 **{'collections': [
                     intids.queryId(term)
                     for term in [
-                        thesaurus.terms.get(tag)
+                        thesaurus.terms.get(value)
                         for tag in collections
+                        for value in tag.split(',')
                     ]
                     if term is not None
                 ]})
