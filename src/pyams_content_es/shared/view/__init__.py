@@ -27,6 +27,7 @@ from pyams_content_es.interfaces import IContentIndexerUtility, IUserSearchSetti
 from pyams_content_es.shared.view.interfaces import IEsViewQuery, IEsViewQueryFilterExtension, \
     IEsViewQueryParamsExtension, IEsViewUserQuery
 from pyams_elastic.include import get_client
+from pyams_i18n.interfaces import INegotiator
 from pyams_sequence.interfaces import ISequentialIntIds
 from pyams_utils.adapter import ContextAdapter, adapter_config, get_adapter_weight
 from pyams_utils.list import unique_iter
@@ -178,7 +179,7 @@ class EsViewQuery(ContextAdapter):
                                                          IEsViewQueryFilterExtension),
                                     key=lambda x: x[1].weight):
             items = adapter.filter(context, items, request)
-        return unique_iter(items), total_count, aggregations
+        return total_count, aggregations, unique_iter(items)
 
 
 @adapter_config(name='user-params',
@@ -202,34 +203,73 @@ class EsUserViewQueryParamsExtension(ContextAdapter):
             yield from adapter.get_user_params(request)
 
 
+class EsViewSimpleTermQuery(ContextAdapter):
+    """Elasticsearch simple view term query adapter"""
+
+    param_name = None
+    field_name = None
+
+    def get_user_params(self, request):
+        param = request.params.get(self.param_name)
+        if param:
+            registry = request.registry
+            field_name = registry.settings.get(f'pyams_content_es.filter.{self.field_name}.field_name',
+                                               self.field_name)
+            yield Q('term', **{field_name: param})
+
+
 @adapter_config(name='content-type',
                 required=IWfView,
                 provides=IEsViewUserQuery)
-class EsViewContentTypeQuery(ContextAdapter):
+class EsViewContentTypeQuery(EsViewSimpleTermQuery):
     """Search folder content-type query"""
 
-    @staticmethod
-    def get_user_params(request):
-        """User params getter"""
-        content_type = request.params.get('content_type')
-        if content_type:
-            yield Q('term',
-                    **{'content_type': content_type})
+    param_name = 'content_type'
+    field_name = 'content_type'
 
 
 @adapter_config(name='data-type',
                 required=IWfView,
                 provides=IEsViewUserQuery)
-class EsViewDatatypeQuery(ContextAdapter):
+class EsViewDatatypeQuery(EsViewSimpleTermQuery):
     """Search folder data-type query"""
 
-    @staticmethod
-    def get_user_params(request):
-        """User params getter"""
-        data_type = request.params.get('data_type')
-        if data_type:
-            yield Q('term',
-                    **{'data_type': data_type})
+    param_name = 'data_type'
+    field_name = 'data_type'
+
+
+@adapter_config(name='facet-label',
+                required=IWfView,
+                provides=IEsViewUserQuery)
+class EsViewFacetLabelQuery(EsViewSimpleTermQuery):
+    """Search folder facet label query"""
+
+    param_name = 'facet_label'
+    field_name = 'facet_label'
+
+
+@adapter_config(name='facet-type-label',
+                required=IWfView,
+                provides=IEsViewUserQuery)
+class EsViewFacetTypeLabelQuery(EsViewSimpleTermQuery):
+    """Search folder facet type label query"""
+
+    param_name = 'facet_type_label'
+    field_name = 'facet_type_label'
+
+
+@adapter_config(name='title',
+                required=IWfView,
+                provides=IEsViewUserQuery)
+class EsViewTitleQuery(EsViewSimpleTermQuery):
+    """Search folder title query"""
+
+    param_name = 'title'
+
+    @property
+    def field_name(self):
+        negotiator = get_utility(INegotiator)
+        return f'title.{negotiator.server_language}.keyword'
 
 
 @adapter_config(name='user-search',
