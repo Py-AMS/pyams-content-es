@@ -95,17 +95,6 @@ class IBaseSearchSettings(Interface):
                         required=True,
                         default='default')
 
-    search_fields = TextLineListField(title=_("Search fields"),
-                                      description=_("List of fields used for quick search in backoffice, "
-                                                    "with their respective weight (if any)"),
-                                      required=True,
-                                      default=[
-                                          'title.*',
-                                          'short_name.*',
-                                          'header.*',
-                                          'description.*'
-                                      ])
-
     default_operator = Choice(title=_("Default operator"),
                               description=_("This is the default operator used to combine search terms"),
                               values=('AND', 'OR'),
@@ -119,6 +108,17 @@ QUICK_SEARCH_SETTINGS_KEY = 'pyams_content_es.quick_settings'
 class IQuickSearchSettings(IBaseSearchSettings):
     """Backoffice quick search settings interface"""
 
+    search_fields = TextLineListField(title=_("Search fields"),
+                                      description=_("List of fields used for quick search in backoffice, "
+                                                    "with their respective weight (if any)"),
+                                      required=True,
+                                      default=[
+                                          'title.*',
+                                          'short_name.*',
+                                          'header.*',
+                                          'description.*'
+                                      ])
+
 
 USER_SEARCH_SETTINGS_KEY = 'pyams_content_es.user_settings'
 
@@ -126,8 +126,19 @@ USER_SEARCH_SETTINGS_KEY = 'pyams_content_es.user_settings'
 class IUserSearchSettings(IBaseSearchSettings):
     """Default user search settings"""
 
+    search_fields = TextLineListField(title=_("Backoffice search fields"),
+                                      description=_("List of fields used for base search in backoffice, "
+                                                    "with their respective weight (if any)"),
+                                      required=True,
+                                      default=[
+                                          'title.*',
+                                          'short_name.*',
+                                          'header.*',
+                                          'description.*'
+                                      ])
+
     fulltext_search_fields = TextLineListField(title=_("Fulltext search fields"),
-                                               description=_("List of fields used for user fulltext search, "
+                                               description=_("List of fields used for fulltext search, "
                                                              "with their respective weight (if any)"),
                                                required=True,
                                                default=[
