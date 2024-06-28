@@ -295,11 +295,13 @@ class EsViewUserSearchQuery(ContextAdapter):
                     'query': fulltext,
                     'default_operator': settings.default_operator,
                     'analyzer': settings.analyzer,
-                    'fields': settings.search_fields
+                    'fields': settings.fulltext_search_fields,
+                    'lenient': True
                 }
                 if '"' not in fulltext:
                     query2 = query.copy()
                     query2['query'] = '"{}"'.format(fulltext)
-                    yield Q('simple_query_string', **query) | Q('simple_query_string', **query2)
+                    yield (Q('simple_query_string', **query) |
+                           Q('simple_query_string', **query2))
                 else:
                     yield Q('simple_query_string', **query)

@@ -31,7 +31,7 @@ from pyams_content.shared.common.zmi.search import ISharedToolAdvancedSearchQuer
     SharedToolAdvancedSearchResultsValues, SharedToolQuickSearchResultsTable, \
     SharedToolQuickSearchResultsValues
 from pyams_content_es.document import ElasticResultSet
-from pyams_content_es.interfaces import IContentIndexerUtility, IQuickSearchSettings
+from pyams_content_es.interfaces import IContentIndexerUtility, IQuickSearchSettings, IUserSearchSettings
 from pyams_elastic.include import get_client
 from pyams_form.field import Fields
 from pyams_form.interfaces.form import IFormFields
@@ -70,16 +70,20 @@ class EsSharedToolQuickSearchResultsValues(SharedToolQuickSearchResultsValues):
         sequence = get_utility(ISequentialIntIds)
         query = query.lower().replace('*', '')
         if query.startswith('+'):
-            params = Q('term', reference_id=sequence.get_full_oid(query))
+            params = Q('term',
+                       reference_id=sequence.get_full_oid(query))
         else:
             indexer = get_utility(IContentIndexerUtility)
             settings = IQuickSearchSettings(indexer)
             vocabulary = getVocabularyRegistry().get(self.context,
                                                      SHARED_CONTENT_TYPES_VOCABULARY)
             params = (
-                Q('term', parent_ids=intids.register(self.context)) &
-                Q('terms', content_type=list(vocabulary.by_value.keys())) &
-                (Q('term', reference_id=sequence.get_full_oid(query)) |
+                Q('term',
+                  parent_ids=intids.register(self.context)) &
+                Q('terms',
+                  content_type=list(vocabulary.by_value.keys())) &
+                (Q('term',
+                   reference_id=sequence.get_full_oid(query)) |
                  Q('simple_query_string',
                    query=query,
                    fields=settings.search_fields,
@@ -128,55 +132,74 @@ class EsSharedToolAdvancedSearchResultsValues(SharedToolAdvancedSearchResultsVal
         intids = get_utility(IIntIds)
         vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = \
-            Q('term', parent_ids=intids.register(self.context)) & \
-            Q('terms', content_type=list(vocabulary.by_value.keys()))
+            Q('term',
+              parent_ids=intids.register(self.context)) & \
+            Q('terms',
+              content_type=list(vocabulary.by_value.keys()))
         query = data.get('query')
         if query:
             sequence = get_utility(ISequentialIntIds)
             if query.startswith('+'):
-                params &= Q('term', reference_id=sequence.get_full_oid(query))
+                params &= Q('term',
+                            reference_id=sequence.get_full_oid(query))
             else:
+                indexer = get_utility(IContentIndexerUtility)
+                settings = IUserSearchSettings(indexer)
                 fulltext = data.get('fulltext', False)
                 if fulltext:
                     params &= (
-                        Q('term', reference_id=sequence.get_full_oid(query)) |
+                        Q('term',
+                          reference_id=sequence.get_full_oid(query)) |
                         Q('simple_query_string',
-                          query=query))
+                          query=query,
+                          fields=settings.fulltext_search_fields,
+                          analyzer=settings.analyzer,
+                          default_operator=settings.default_operator,
+                          lenient=True))
                 else:
-                    indexer = get_utility(IContentIndexerUtility)
-                    settings = IQuickSearchSettings(indexer)
                     params &= (
-                        Q('term', reference_id=sequence.get_full_oid(query)) |
+                        Q('term',
+                          reference_id=sequence.get_full_oid(query)) |
                         Q('simple_query_string',
                           query=query,
                           fields=settings.search_fields,
                           analyzer=settings.analyzer,
                           default_operator=settings.default_operator))
         if data.get('owner'):
-            params &= Q('term', owner_id=data['owner'])
+            params &= Q('term',
+                        owner_id=data['owner'])
         if data.get('status'):
-            params &= Q('term', workflow__status=data['status'])
+            params &= Q('term',
+                        workflow__status=data['status'])
         if data.get('data_type'):
-            params &= Q('term', data_type=data['data_type'])
+            params &= Q('term',
+                        data_type=data['data_type'])
         created_after, created_before = data.get('created', (None, None))
         if created_after:
-            params &= Q('range', workflow__created_date={'gte': created_after})
+            params &= Q('range',
+                        workflow__created_date={'gte': created_after})
         if created_before:
-            params &= Q('range', workflow__created_date={'lte': created_before})
+            params &= Q('range',
+                        workflow__created_date={'lte': created_before})
         modified_after, modified_before = data.get('modified', (None, None))
         if modified_after:
-            params &= Q('range', workflow__modified_date={'gte': modified_after})
+            params &= Q('range',
+                        workflow__modified_date={'gte': modified_after})
         if modified_before:
-            params &= Q('range', workflow__modified_date={'lte': modified_before})
+            params &= Q('range',
+                        workflow__modified_date={'lte': modified_before})
         if data.get('tags'):
             tags = [intids.register(term) for term in data['tags']]
-            params &= Q('terms', tags=tags)
+            params &= Q('terms',
+                        tags=tags)
         if data.get('themes'):
             themes = [intids.register(term) for term in data['themes']]
-            params &= Q('terms', themes__terms=themes)
+            params &= Q('terms',
+                        themes__terms=themes)
         if data.get('collections'):
             collections = [intids.register(collection) for collection in data['collections']]
-            params &= Q('terms', collections=collections)
+            params &= Q('terms',
+                        collections=collections)
         return params
 
     @property
@@ -227,17 +250,23 @@ class EsSiteRootQuickSearchResultsValues(SiteRootQuickSearchResultsValues):
         sequence = get_utility(ISequentialIntIds)
         query = query.lower().replace('*', '')
         if query.startswith('+'):
-            params = Q('term', reference_id=sequence.get_full_oid(query))
+            params = Q('term',
+                       reference_id=sequence.get_full_oid(query))
         else:
             vocabulary = getVocabularyRegistry().get(self.context,
                                                      SHARED_CONTENT_TYPES_VOCABULARY)
+            indexer = get_utility(IContentIndexerUtility)
+            settings = IQuickSearchSettings(indexer)
             params = (
-                Q('terms', content_type=list(vocabulary.by_value.keys())) &
-                (Q('term', reference_id=sequence.get_full_oid(query)) |
+                Q('terms',
+                  content_type=list(vocabulary.by_value.keys())) &
+                (Q('term',
+                   reference_id=sequence.get_full_oid(query)) |
                  Q('simple_query_string',
                    query=query,
-                   fields=['title.*', 'short_name.*', 'header.*', 'description.*'],
-                   default_operator='and')))
+                   fields=settings.search_fields,
+                   analyzer=settings.analyzer,
+                   default_operator=settings.default_operator)))
         client = get_client(self.request)
         search = Search(using=client.es, index=client.index) \
             .query(params) \
@@ -280,49 +309,69 @@ class EsSiteRootAdvancedSearchResultsValues(SiteRootAdvancedSearchResultsValues)
         """Extract Elasticsearch query params from incoming request"""
         intids = get_utility(IIntIds)
         vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
-        params = Q('terms', content_type=list(vocabulary.by_value.keys()))
+        params = Q('terms',
+                   content_type=list(vocabulary.by_value.keys()))
         query = data.get('query')
         if query:
             sequence = get_utility(ISequentialIntIds)
             if query.startswith('+'):
-                params &= Q('term', reference_id=sequence.get_full_oid(query))
+                params &= Q('term',
+                            reference_id=sequence.get_full_oid(query))
             else:
+                indexer = get_utility(IContentIndexerUtility)
+                settings = IUserSearchSettings(indexer)
                 fulltext = data.get('fulltext', False)
                 if fulltext:
                     params &= (
-                        Q('term', reference_id=sequence.get_full_oid(query)) |
-                        Q('simple_query_string',
-                          query=query))
-                else:
-                    params &= (
-                        Q('term', reference_id=sequence.get_full_oid(query)) |
+                        Q('term',
+                          reference_id=sequence.get_full_oid(query)) |
                         Q('simple_query_string',
                           query=query,
-                          fields=['title.*', 'short_name.*', 'header.*', 'description.*'],
-                          default_operator='and'))
+                          fields=settings.fulltext_search_fields,
+                          analyzer=settings.analyzer,
+                          default_operator=settings.default_operator,
+                          lenient=True))
+                else:
+                    params &= (
+                        Q('term',
+                          reference_id=sequence.get_full_oid(query)) |
+                        Q('simple_query_string',
+                          query=query,
+                          fields=settings.search_fields,
+                          analyzer=settings.analyzer,
+                          default_operator=settings.default_operator))
         if data.get('owner'):
-            params &= Q('term', owner_id=data['owner'])
+            params &= Q('term',
+                        owner_id=data['owner'])
         if data.get('content_type'):
-            params &= Q('term', content_type=data['content_type'])
+            params &= Q('term',
+                        content_type=data['content_type'])
         created_after, created_before = data.get('created', (None, None))
         if created_after:
-            params &= Q('range', workflow__created_date={'gte': created_after})
+            params &= Q('range',
+                        workflow__created_date={'gte': created_after})
         if created_before:
-            params &= Q('range', workflow__created_date={'lte': created_before})
+            params &= Q('range',
+                        workflow__created_date={'lte': created_before})
         modified_after, modified_before = data.get('modified', (None, None))
         if modified_after:
-            params &= Q('range', workflow__modified_date={'gte': modified_after})
+            params &= Q('range',
+                        workflow__modified_date={'gte': modified_after})
         if modified_before:
-            params &= Q('range', workflow__modified_date={'lte': modified_before})
+            params &= Q('range',
+                        workflow__modified_date={'lte': modified_before})
         if data.get('tags'):
             tags = [intids.register(term) for term in data['tags']]
-            params &= Q('terms', tags=tags)
+            params &= Q('terms',
+                        tags=tags)
         if data.get('themes'):
             themes = [intids.register(term) for term in data['themes']]
-            params &= Q('terms', themes__terms=themes)
+            params &= Q('terms',
+                        themes__terms=themes)
         if data.get('collections'):
             collections = [intids.register(collection) for collection in data['collections']]
-            params &= Q('terms', collections=collections)
+            params &= Q('terms',
+                        collections=collections)
         return params
 
     @property

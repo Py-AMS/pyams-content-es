@@ -49,6 +49,9 @@ from pyams_workflow.versions import get_last_version_in_state
 from pyams_zmi.interfaces import IAdminLayer
 
 
+MODIFIED_DATE_FIELD = 'workflow.modified_date'
+
+
 #
 # Elasticsearch shared tools dashboards adapters
 #
@@ -93,7 +96,7 @@ class EsSharedToolDashboardOwnerWaitingValues(SharedToolDashboardOwnerWaitingVal
             Q('term', workflow__principal=principal_id))
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -121,7 +124,7 @@ class EsSharedToolPreparationsValues(SharedToolPreparationsValues):
         )
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -150,7 +153,7 @@ class EsSharedToolSubmissionsValues(SharedToolSubmissionsValues):
         )
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -179,7 +182,7 @@ class EsSharedToolPublicationsValues(SharedToolPublicationsValues):
         )
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -208,7 +211,7 @@ class EsSharedToolRetiredContentsValues(SharedToolRetiredContentsValues):
         )
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -237,7 +240,7 @@ class EsSharedToolArchivedContentsValues(SharedToolArchivedContentsValues):
         )
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -262,7 +265,7 @@ class EsSharedToolLastPublicationsValues(SharedToolLastPublicationsValues):
         )
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -285,7 +288,7 @@ class EsSharedToolLastModificationsValues(SharedToolLastModificationsValues):
         )
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -318,7 +321,7 @@ class EsSiteRootDashboardManagerWaitingValues(SiteRootDashboardManagerWaitingVal
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -351,7 +354,7 @@ class EsSiteRootDashboardOwnerWaitingValues(SiteRootDashboardOwnerWaitingValues)
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -381,7 +384,7 @@ class EsSiteRootDashboardOwnerModifiedValues(SiteRootDashboardOwnerModifiedValue
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -412,7 +415,7 @@ class EsSiteRootPreparationsValues(SiteRootPreparationsValues):
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -444,7 +447,7 @@ class EsSiteRootSubmissionsValues(SiteRootSubmissionsValues):
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -476,7 +479,7 @@ class EsSiteRootPublicationsValues(SiteRootPublicationsValues):
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -508,7 +511,7 @@ class EsSiteRootRetiredContentsValues(SiteRootRetiredContentsValues):
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -540,7 +543,7 @@ class EsSiteRootArchivedContentsValues(SiteRootArchivedContentsValues):
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -568,7 +571,7 @@ class EsSiteRootLastPublicationsValues(SiteRootLastPublicationsValues):
             params = params | query if params else query
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
@@ -587,7 +590,7 @@ class EsSiteRootLastModificationsValues(SiteRootLastModificationsValues):
         params = Q('terms', content_type=list(vocabulary.by_value.keys()))
         search = get_elastic_search(self.request, params) \
             .sort({
-                'workflow.modified_date': {
+                MODIFIED_DATE_FIELD: {
                     'unmapped_type': 'date',
                     'order': 'desc'
                 }
