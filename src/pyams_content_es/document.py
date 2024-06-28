@@ -16,7 +16,7 @@
 
 __docformat__ = 'restructuredtext'
 
-from datetime import datetime
+from datetime import datetime, timezone
 from elasticsearch_dsl import Search
 
 from pyramid.events import subscriber
@@ -30,8 +30,7 @@ from zope.lifecycleevent.interfaces import IObjectAddedEvent, IObjectModifiedEve
 from pyams_catalog.query import CatalogResultSet
 from pyams_content.shared.common import WfSharedContent
 from pyams_content.shared.common.interfaces import IPreventSharedContentUpdateSubscribers, ISharedTool, \
-    IWfSharedContent, \
-    IWfSharedContentRoles
+    IWfSharedContent, IWfSharedContentRoles
 from pyams_content.shared.common.interfaces.types import IWfTypedSharedContent
 from pyams_content_es.interfaces import IContentIndexerUtility, IDocumentIndexInfo, IDocumentIndexTarget
 from pyams_elastic.include import get_client
@@ -86,7 +85,7 @@ class ElasticDocumentMixin(ElasticMixin):
         """Timestamp getter"""
         dc = IZopeDublinCore(self, None)
         if dc is None:
-            return datetime.utcnow()
+            return datetime.now(timezone.utc)
         return dc.modified
 
     @property
