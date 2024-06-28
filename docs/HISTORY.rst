@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.99.3
+------
+ - updated fulltext queries
+ - update current datetime getter
+ - code cleanup
+
 1.99.2
 ------
  - added aggregated filters support
