@@ -67,7 +67,7 @@ def title_filter_aggregate(context):
     """Title filter aggregate getter"""
     sorting_params = get_sorting_params(context.sorting_mode)
     registry = get_pyramid_registry()
-    field_name = registry.settings.get(f'pyams_content_es.filter.title.field_name')
+    field_name = registry.settings.get('pyams_content_es.filter.title.field_name')
     if not field_name:
         negotiator = get_utility(INegotiator)
         field_name = f'title.{negotiator.server_language}.keyword'

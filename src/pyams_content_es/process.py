@@ -206,7 +206,7 @@ class ContentIndexerHandler:
         else:
             messages.extend([
                 "Elasticsearch client properties:",
-                f" - nodes:"
+                " - nodes:"
             ])
             for config in es_client.es.transport.node_pool.node_selector.node_configs:
                 messages.extend([
