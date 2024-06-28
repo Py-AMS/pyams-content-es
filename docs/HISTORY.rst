@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.99.2
+------
+ - added aggregated filters support
+
 1.99.1
 ------
  - removed index checker for search folders
