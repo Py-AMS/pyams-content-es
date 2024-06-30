@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.99.4
+------
+ - code refactoring
+ - updated doctests
+
 1.99.3
 ------
  - updated fulltext queries
