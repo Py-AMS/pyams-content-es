@@ -68,8 +68,8 @@ msgid ""
 "List of fields used for base search in backoffice, with their respective "
 "weight (if any)"
 msgstr ""
-"Liste des propriétés utilisées pour la recherche en back-office, avec "
-"leurs poids respectifs éventuels"
+"Liste des propriétés utilisées pour la recherche en back-office, avec leurs "
+"poids respectifs éventuels"
 
 #: src/pyams_content_es/interfaces.py:140
 msgid "Fulltext search fields"
@@ -80,8 +80,8 @@ msgid ""
 "List of fields used for fulltext search, with their respective weight (if "
 "any)"
 msgstr ""
-"Liste des propriétés utilisées pour la recherche fulltext (en back comme en front-office), "
-"avec leurs poids respectifs éventuels"
+"Liste des propriétés utilisées pour la recherche fulltext (en back comme en "
+"front-office), avec leurs poids respectifs éventuels"
 
 #: src/pyams_content_es/zmi/search.py:106
 #: src/pyams_content_es/zmi/search.py:283

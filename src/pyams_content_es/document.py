@@ -249,7 +249,11 @@ def handle_removed_document(event):
     indexer = query_utility(IContentIndexerUtility)
     if indexer is None:
         return
-    indexer.unindex_document(event.object)
+    document = event.object
+    oid = ISequentialIdInfo(document).hex_oid
+    wf_state = IWorkflowState(document, None)
+    document_oid = f'{oid}.{wf_state.version_id}' if wf_state else oid
+    indexer.unindex_document(document_oid)
 
 
 @subscriber(IObjectAddedEvent)

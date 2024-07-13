@@ -47,8 +47,6 @@ class IndexUpdateHandler(TransactionClient):
         if action in ('index_document', 'update_document'):
             intids = get_utility(IIntIds)
             document = intids.queryId(document)
-        else:  # unindex_document
-            document = document.id
         settings = {
             'zodb_name': self.indexer.zodb_name,
             'document': document
@@ -92,10 +90,10 @@ class ContentIndexerUtility(Persistent, Contained):
         handler = IndexUpdateHandler(self)
         return handler.update_index('update_document', document, attrs=attrs)
 
-    def unindex_document(self, document):
+    def unindex_document(self, document_oid):
         """Remove document from Elasticsearch index"""
         handler = IndexUpdateHandler(self)
-        return handler.update_index('unindex_document', document)
+        return handler.update_index('unindex_document', document_oid)
 
 
 #
