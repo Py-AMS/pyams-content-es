@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.99.5
+------
+ - provide document OID instead of original document when removing a document from index
+
 1.99.4
 ------
  - code refactoring
