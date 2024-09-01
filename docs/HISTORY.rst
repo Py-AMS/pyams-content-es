@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.99.6
+------
+ - don't remove asterisks from quick search query
+
 1.99.5
 ------
  - provide document OID instead of original document when removing a document from index
