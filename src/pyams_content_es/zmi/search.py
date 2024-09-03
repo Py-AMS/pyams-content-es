@@ -257,7 +257,7 @@ class EsSiteRootQuickSearchResultsValues(SiteRootQuickSearchResultsValues):
         if not query:
             return ()
         sequence = get_utility(ISequentialIntIds)
-        query = query.lower().replace('*', '')
+        query = query.lower()
         if query.startswith('+'):
             params = Q('term',
                        reference_id=sequence.get_full_oid(query))
