@@ -1,9 +1,13 @@
 Changelog
 =========
 
+1.99.7
+------
+ - don't remove asterisks from site root quick search query
+
 1.99.6
 ------
- - don't remove asterisks from quick search query
+ - don't remove asterisks from shared tool quick search query
 
 1.99.5
 ------
