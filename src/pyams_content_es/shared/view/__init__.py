@@ -10,8 +10,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 
-"""PyAMS_*** module
+"""PyAMS_content_es.shared.view module
 
+This module defines how shared content queries are handled when using an Elasticsearch
+index.
 """
 
 __docformat__ = 'restructuredtext'
@@ -24,13 +26,13 @@ from pyams_content.shared.view import IViewQuery, IWfView
 from pyams_content.shared.view.interfaces import RELEVANCE_ORDER
 from pyams_content.shared.view.interfaces.query import END_PARAMS_MARKER
 from pyams_content_es.interfaces import IContentIndexerUtility, IUserSearchSettings
-from pyams_content_es.shared.view.interfaces import IEsViewQuery, IEsViewQueryFilterExtension, \
-    IEsViewQueryParamsExtension, IEsViewUserQuery
+from pyams_content_es.shared.view.interfaces import IEsViewQuery, IEsViewQueryParamsExtension, \
+    IEsViewQueryPostFilterExtension, IEsViewQueryResultsFilterExtension, IEsViewUserPostFilter, IEsViewUserQuery
 from pyams_elastic.include import get_client
 from pyams_i18n.interfaces import INegotiator
 from pyams_sequence.interfaces import ISequentialIntIds
 from pyams_utils.adapter import ContextAdapter, adapter_config, get_adapter_weight
-from pyams_utils.list import unique_iter
+from pyams_utils.list import boolean_iter, unique_iter
 from pyams_utils.registry import get_pyramid_registry, get_utility
 from pyams_workflow.interfaces import IWorkflow
 
@@ -128,6 +130,12 @@ class EsViewQuery(ContextAdapter):
                             })
         return params
 
+    def get_post_filters(self, context, request=None, **kwargs):
+        registry = get_pyramid_registry()
+        for name, adapter in sorted(registry.getAdapters((self.context,), IEsViewQueryPostFilterExtension),
+                                    key=get_adapter_weight):
+            yield from adapter.get_params(context, request)
+
     def get_results(self, context, sort_index, reverse, limit,
                     request=None, aggregates=None, settings=None, **kwargs):
         aggregations = {}
@@ -138,9 +146,14 @@ class EsViewQuery(ContextAdapter):
             items = CatalogResultSet([])
             total_count = 0
         else:
+            # get post-filters (excluded from aggregations calculation)
+            filters = Q()
+            for filter in self.get_post_filters(context, request, **kwargs):
+                filters &= filter
             search = Search(using=client.es, index=client.index) \
                 .params(request_timeout=30) \
                 .query(params) \
+                .post_filter(filters) \
                 .source(['internal_id'])
             if aggregates:
                 for agg in aggregates:
@@ -176,19 +189,17 @@ class EsViewQuery(ContextAdapter):
             if isinstance(total_count, (dict, AttrDict)):
                 total_count = results.hits.total['value']
         for name, adapter in sorted(registry.getAdapters((self.context,),
-                                                         IEsViewQueryFilterExtension),
+                                                         IEsViewQueryResultsFilterExtension),
                                     key=lambda x: x[1].weight):
             items = adapter.filter(context, items, request)
         return total_count, aggregations, unique_iter(items)
 
 
-@adapter_config(name='user-params',
-                required=IWfView,
-                provides=IEsViewQueryParamsExtension)
-class EsUserViewQueryParamsExtension(ContextAdapter):
-    """Elasticsearch user view query params extension"""
+class BaseEsUserViewQueryExtension(ContextAdapter):
+    """Base Elasticsearch user view query extension"""
 
     weight = 999
+    query_interface = None
 
     def __new__(cls, context):
         if not context.allow_user_params:
@@ -198,9 +209,27 @@ class EsUserViewQueryParamsExtension(ContextAdapter):
     def get_params(self, context, request=None):
         """User params getter"""
         registry = get_pyramid_registry()
-        for name, adapter in sorted(registry.getAdapters((self.context,), IEsViewUserQuery),
+        for name, adapter in sorted(registry.getAdapters((self.context,), self.query_interface),
                                     key=get_adapter_weight):
             yield from adapter.get_user_params(request)
+
+
+@adapter_config(name='user-params',
+                required=IWfView,
+                provides=IEsViewQueryParamsExtension)
+class EsUserViewQueryParamsExtension(BaseEsUserViewQueryExtension):
+    """Elasticsearch user view query params extension"""
+
+    query_interface = IEsViewUserQuery
+
+
+@adapter_config(name='user-params',
+                required=IWfView,
+                provides=IEsViewQueryPostFilterExtension)
+class EsUserViewQueryPostFilterExtension(BaseEsUserViewQueryExtension):
+    """Elasticsearch user view query post-filters extension"""
+
+    query_interface = IEsViewUserPostFilter
 
 
 class EsViewSimpleTermQuery(ContextAdapter):
@@ -210,12 +239,12 @@ class EsViewSimpleTermQuery(ContextAdapter):
     field_name = None
 
     def get_user_params(self, request):
-        param = request.params.get(self.param_name)
-        if param:
+        params = request.params.getall(self.param_name)
+        if params:
             registry = request.registry
             field_name = registry.settings.get(f'pyams_content_es.filter.{self.field_name}.field_name',
                                                self.field_name)
-            yield Q('term', **{field_name: param})
+            yield Q('terms', **{field_name: params})
 
 
 @adapter_config(name='content-type',
@@ -260,7 +289,7 @@ class EsViewFacetTypeLabelQuery(EsViewSimpleTermQuery):
 
 @adapter_config(name='title',
                 required=IWfView,
-                provides=IEsViewUserQuery)
+                provides=IEsViewUserPostFilter)
 class EsViewTitleQuery(EsViewSimpleTermQuery):
     """Search folder title query"""
 
