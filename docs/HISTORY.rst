@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.99.8
+------
+ - added support for query post-filters (which are used only after aggregates calculation)
+
 1.99.7
 ------
  - don't remove asterisks from site root quick search query
