@@ -23,7 +23,7 @@ from zope.interface import implementer
 
 from pyams_catalog.query import CatalogResultSet
 from pyams_content.shared.view import IViewQuery, IWfView
-from pyams_content.shared.view.interfaces import RELEVANCE_ORDER
+from pyams_content.shared.view.interfaces import RELEVANCE_ORDER, TITLE_ORDER
 from pyams_content.shared.view.interfaces.query import END_PARAMS_MARKER
 from pyams_content_es.interfaces import IContentIndexerUtility, IUserSearchSettings
 from pyams_content_es.shared.view.interfaces import IEsViewQuery, IEsViewQueryParamsExtension, \
@@ -167,9 +167,16 @@ class EsViewQuery(ContextAdapter):
                         'order': 'desc'
                     }
                 })
+            elif sort_index == TITLE_ORDER:
+                negotiator = get_utility(INegotiator)
+                sort_values.append({
+                    f'title.{negotiator.server_language}.keyword': {
+                        'order': 'desc' if reverse else 'asc'
+                    }
+                })
             else:
                 sort_values.append({
-                    'workflow.{0}'.format(sort_index): {
+                    f'workflow.{sort_index}': {
                         'order': 'desc' if reverse else 'asc',
                         'unmapped_type': 'date'
                     }
