@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.1
+-----
+ - packaging issue...
+
 2.0.0
 -----
  - first production version
