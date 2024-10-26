@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.0.0
+-----
+ - first production version
+ - added support for views alphabetical ordering (requires keyword index fields on title)
+ - added support for Python 3.12
+
 1.99.8
 ------
  - added support for query post-filters (which are used only after aggregates calculation)
