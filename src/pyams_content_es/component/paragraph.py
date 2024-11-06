@@ -63,13 +63,3 @@ def html_paragraph_index_info(context):
     get_index_values(context, info,
                      i18n_fields=(('body', html_to_index),))
     return info
-
-
-@adapter_config(required=IExternalVideoParagraph,
-                provides=IDocumentIndexInfo)
-def external_video_paragraph_index_info(context):
-    """External video paragraph index info"""
-    info = base_paragraph_index_info(context)
-    get_index_values(context, info,
-                     i18n_fields=(('description', html_to_index),))
-    return info
