@@ -28,7 +28,7 @@ else:
     from pyams_utils.adapter import adapter_config
 
 
-    @adapter_config(requried=IMapParagraph,
+    @adapter_config(required=IMapParagraph,
                     provides=IDocumentIndexInfo)
     def map_paragraph_index_info(context):
         """Map paragraph index info"""
