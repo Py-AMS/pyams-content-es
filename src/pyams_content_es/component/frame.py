@@ -14,7 +14,7 @@
 
 """
 
-from pyams_content.component.frame import IFrameParagraph
+from pyams_content.component.frame.interfaces import IFrameParagraph
 from pyams_content_es.component import get_index_values, html_to_index
 from pyams_content_es.component.paragraph import base_paragraph_index_info
 from pyams_content_es.interfaces import IDocumentIndexInfo
