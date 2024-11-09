@@ -14,22 +14,16 @@
 
 """
 
+from pyams_content.component.map import IMapParagraph
+from pyams_content_es.component.paragraph import base_paragraph_index_info
+from pyams_content_es.interfaces import IDocumentIndexInfo
+from pyams_utils.adapter import adapter_config
+
 __docformat__ = 'restructuredtext'
 
-try:
-    import pyams_gis
-except ImportError:
-    pyams_gis = None
-else:
 
-    from pyams_content.component.map import IMapParagraph
-    from pyams_content_es.component.paragraph import base_paragraph_index_info
-    from pyams_content_es.interfaces import IDocumentIndexInfo
-    from pyams_utils.adapter import adapter_config
-
-
-    @adapter_config(required=IMapParagraph,
-                    provides=IDocumentIndexInfo)
-    def map_paragraph_index_info(context):
-        """Map paragraph index info"""
-        return base_paragraph_index_info(context)
+@adapter_config(required=IMapParagraph,
+                provides=IDocumentIndexInfo)
+def map_paragraph_index_info(context):
+    """Map paragraph index info"""
+    return base_paragraph_index_info(context)
