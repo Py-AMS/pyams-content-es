@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.1.0
+-----
+ - added contact paragraph indexer
+ - added illustration paragaph indexer
+ - added frame paragraph indexer
+ - added location map paragraph indexer
+
 2.0.1
 -----
  - packaging issue...
