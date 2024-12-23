@@ -34,7 +34,7 @@ SORTING_MODES = {
     FILTER_SORTING.ALPHA_DESC.value: lambda x: locale.strxfrm(x['label']),
     FILTER_SORTING.COUNT.value: lambda x: (x['doc_count'], locale.strxfrm(x['label'])),
     FILTER_SORTING.COUNT_DESC.value: lambda x: (x['doc_count'], locale.strxfrm(x['label'])),
-    FILTER_SORTING.MANUAL.value: None
+    FILTER_SORTING.MANUAL.value: lambda x: x.get('order', 0)
 }
 
 
@@ -96,6 +96,7 @@ class EsBaseThesaurusFilterProcessor(EsBaseFilterProcessor):
                 result.append({
                     'key': tag_object.label,
                     'label': tag_object.public_title,
+                    'order': tag_object.order or 0,
                     'doc_count': item.doc_count
                 })
         return result
