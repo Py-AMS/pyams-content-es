@@ -19,12 +19,11 @@ __docformat__ = 'restructuredtext'
 
 from pyams_content.component.paragraph.interfaces import IBaseParagraph, IParagraphContainer, \
     IParagraphContainerTarget
+from pyams_content.component.paragraph.interfaces.group import IParagraphsGroup
 from pyams_content.component.paragraph.interfaces.html import IHTMLParagraph, IRawParagraph
-from pyams_content.component.video.interfaces import IExternalVideoParagraph
 from pyams_content_es.component import get_index_values, html_to_index
 from pyams_content_es.interfaces import IDocumentIndexInfo
 from pyams_utils.adapter import adapter_config
-from pyams_utils.html import html_to_text
 
 
 @adapter_config(name='paragraphs',
@@ -50,6 +49,17 @@ def base_paragraph_index_info(context):
     info = {}
     get_index_values(context, info,
                      i18n_fields=('title',))
+    return info
+
+
+@adapter_config(required=IParagraphsGroup,
+                provides=IDocumentIndexInfo)
+def paragraphs_group_index_info(context):
+    """Paragraphs group index info"""
+    info = base_paragraph_index_info(context)
+    paragraphs_info = paragraph_container_index_info(context)
+    for lang, body in paragraphs_info.get('body', {}).items():
+        info[lang] += f"\n{body}"
     return info
 
 
