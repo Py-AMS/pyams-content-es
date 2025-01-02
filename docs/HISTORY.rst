@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.2.0
+-----
+ - added support for paragraphs groups
+ - updated thesaurus based filters manual sorting mode
+
 2.1.0
 -----
  - added contact paragraph indexer
