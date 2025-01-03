@@ -20,6 +20,7 @@ from pyams_content.feature.filter.interfaces import FILTER_SORTING
 from pyams_i18n.interfaces import INegotiator
 from pyams_thesaurus.interfaces.thesaurus import IThesaurus, IThesaurusExtracts
 from pyams_utils.adapter import adapter_config
+from pyams_utils.interfaces import ICacheKeyValue
 from pyams_utils.registry import get_pyramid_registry, get_utility, query_utility
 
 __docformat__ = 'restructuredtext'
@@ -50,7 +51,7 @@ def content_type_filter_aggregate(context):
     sorting_params = get_sorting_params(context.sorting_mode)
     registry = get_pyramid_registry()
     return {
-        'name': content_mode,
+        'name': context.filter_name,
         'type': 'terms',
         'params': {
             'field': registry.settings.get(f'pyams_content_es.filter.{content_mode}.field_name',
@@ -72,7 +73,7 @@ def title_filter_aggregate(context):
         negotiator = get_utility(INegotiator)
         field_name = f'title.{negotiator.server_language}.keyword'
     return {
-        'name': 'title',
+        'name': context.filter_name,
         'type': 'terms',
         'params': {
             'field': field_name,
@@ -90,7 +91,7 @@ def get_terms_aggregate(context, field_name):
     sorting_params = get_sorting_params(context.sorting_mode)
     registry = get_pyramid_registry()
     filter_aggregate = {
-        'name': context.filter_type,
+        'name': context.filter_name,
         'type': 'terms',
         'params': {
             'field': registry.settings.get(f'pyams_content_es.filter.{field_name}.field_name',

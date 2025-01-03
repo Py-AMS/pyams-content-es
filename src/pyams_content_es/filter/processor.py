@@ -93,6 +93,8 @@ class EsBaseThesaurusFilterProcessor(EsBaseFilterProcessor):
             tag_id = int(item.key)
             tag_object = intids.queryObject(tag_id)
             if tag_object:
+                if self.filter.extract_name and (self.filter.extract_name not in tag_object.extracts or ()):
+                    continue
                 result.append({
                     'key': tag_object.label,
                     'label': tag_object.public_title,
