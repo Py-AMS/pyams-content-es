@@ -64,7 +64,7 @@ class EsViewTagsUserQuery(ContextAdapter):
     @staticmethod
     def get_user_params(request):
         """Query user params getter"""
-        tags = request.params.getall('tags')
+        tags = request.params.getall('tag')
         if not tags:
             return
         manager = ITagsManager(request.root, None)
@@ -122,7 +122,7 @@ class EsViewThemesUserQuery(ContextAdapter):
     @staticmethod
     def get_user_params(request):
         """Query user params getter"""
-        themes = request.params.get('themes')
+        themes = request.params.getall('theme')
         if not themes:
             return
         manager = IThemesManager(request.root, None)
@@ -139,8 +139,8 @@ class EsViewThemesUserQuery(ContextAdapter):
                     intids.queryId(term)
                     for term in [
                         thesaurus.terms.get(value)
-                        for tag in themes
-                        for value in tag.split(',')
+                        for theme in themes
+                        for value in theme.split(',')
                     ]
                     if term is not None
                 ]})
@@ -180,7 +180,7 @@ class EsViewCollectionsUserQuery(ContextAdapter):
     @staticmethod
     def get_user_params(request):
         """Query user params getter"""
-        collections = request.params.get('collections')
+        collections = request.params.getall('collection')
         if not collections:
             return
         manager = ICollectionsManager(request.root, None)
@@ -197,8 +197,8 @@ class EsViewCollectionsUserQuery(ContextAdapter):
                     intids.queryId(term)
                     for term in [
                         thesaurus.terms.get(value)
-                        for tag in collections
-                        for value in tag.split(',')
+                        for collection in collections
+                        for value in collection.split(',')
                     ]
                     if term is not None
                 ]})
