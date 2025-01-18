@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.2.1
+-----
+ - updated search folders and filters management
+ - updated thesaurus filters types and parameters names
+
 2.2.0
 -----
  - added support for paragraphs groups
