@@ -207,6 +207,12 @@
             }
           }
         },
+        "facet_label": {
+          "type": "keyword"
+        },
+        "facet_type_label": {
+          "type": "keyword"
+        },
         "gallery": {
           "properties": {
             "en": {
