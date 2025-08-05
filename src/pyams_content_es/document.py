@@ -14,11 +14,9 @@
 
 """
 
-__docformat__ = 'restructuredtext'
-
 from datetime import datetime, timezone
-from elasticsearch_dsl import Search
 
+from elasticsearch_dsl import Search
 from pyramid.events import subscriber
 from transaction.interfaces import ITransactionManager
 from zope.dublincore.interfaces import IZopeDublinCore
@@ -43,6 +41,8 @@ from pyams_utils.registry import get_pyramid_registry, get_utility, query_utilit
 from pyams_utils.request import query_request
 from pyams_utils.traversing import get_parent
 from pyams_workflow.interfaces import IWorkflowState
+
+__docformat__ = 'restructuredtext'
 
 
 def get_internal_id(doc):
@@ -267,11 +267,10 @@ def handle_modified_inner_content(event):
     source = event.object
     if IWfSharedContent.providedBy(source):
         return
-    registry = get_pyramid_registry()
-    handler = registry.queryAdapter(source, IPreventSharedContentUpdateSubscribers)
+    handler = IPreventSharedContentUpdateSubscribers(source, None)
     if handler is not None:
         return
     content = get_parent(event.object, IWfSharedContent, allow_context=False)
     if content is None:
         return
-    registry.notify(ObjectModifiedEvent(content))
+    handle_modified_document(ObjectModifiedEvent(content))
