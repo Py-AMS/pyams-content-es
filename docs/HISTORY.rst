@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.2.2
+-----
+ - reindex document when an inner component is added, modified or removed
+
 2.2.1
 -----
  - updated search folders and filters management
