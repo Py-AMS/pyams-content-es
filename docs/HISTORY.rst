@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.2.3
+-----
+ - updated Gitlab CI for Python 3.11 and 3.12
+
 2.2.2
 -----
  - reindex document when an inner component is added, modified or removed
