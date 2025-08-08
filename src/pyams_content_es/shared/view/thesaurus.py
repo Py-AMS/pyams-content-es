@@ -19,12 +19,11 @@ __docformat__ = 'restructuredtext'
 from elasticsearch_dsl import Q
 from zope.intid.interfaces import IIntIds
 
-from pyams_content.component.thesaurus import ICollectionsManager, ITagsManager, IThemesManager
-from pyams_content.shared.view import IWfView
-from pyams_content.shared.view.interfaces.query import IViewQueryParamsExtension
+from pyams_content.component.thesaurus.interfaces import ICollectionsManager, ITagsManager, IThemesManager
+from pyams_content.shared.view.interfaces import IWfView
 from pyams_content.shared.view.interfaces.settings import IViewCollectionsSettings, IViewTagsSettings, \
     IViewThemesSettings
-from pyams_content_es.shared.view import IEsViewUserQuery
+from pyams_content_es.shared.view.interfaces import IEsViewQueryParamsExtension, IEsViewUserQuery
 from pyams_thesaurus.interfaces.thesaurus import IThesaurus
 from pyams_utils.adapter import ContextAdapter, adapter_config
 from pyams_utils.registry import get_utility
@@ -36,7 +35,7 @@ from pyams_utils.registry import get_utility
 
 @adapter_config(name='tags',
                 required=IWfView,
-                provides=IViewQueryParamsExtension)
+                provides=IEsViewQueryParamsExtension)
 class EsViewTagsQueryParamsExtension(ContextAdapter):
     """Elasticsearch view tags query params extension"""
 
@@ -94,7 +93,7 @@ class EsViewTagsUserQuery(ContextAdapter):
 
 @adapter_config(name='themes',
                 required=IWfView,
-                provides=IViewQueryParamsExtension)
+                provides=IEsViewQueryParamsExtension)
 class EsViewThemesQueryParamsExtension(ContextAdapter):
     """Elasticsearch view themes query params extension"""
 
@@ -152,7 +151,7 @@ class EsViewThemesUserQuery(ContextAdapter):
 
 @adapter_config(name='collections',
                 required=IWfView,
-                provides=IViewQueryParamsExtension)
+                provides=IEsViewQueryParamsExtension)
 class EsViewCollectionsQueryParamsExtension(ContextAdapter):
     """Elasticsearch view collections query params extension"""
 
