@@ -15,26 +15,34 @@
 This module defines the adapters which are used to handle paragraphs indexation.
 """
 
-__docformat__ = 'restructuredtext'
-
-from pyams_content.component.paragraph.interfaces import IBaseParagraph, IParagraphContainer, \
-    IParagraphContainerTarget
+from pyams_content.component.paragraph.interfaces import IBaseParagraph, IParagraphContainerTarget
 from pyams_content.component.paragraph.interfaces.group import IParagraphsGroup
 from pyams_content.component.paragraph.interfaces.html import IHTMLParagraph, IRawParagraph
 from pyams_content_es.component import get_index_values, html_to_index
 from pyams_content_es.interfaces import IDocumentIndexInfo
 from pyams_utils.adapter import adapter_config
+from pyams_utils.finder import find_objects_providing
+from pyams_utils.registry import get_pyramid_registry
+
+__docformat__ = 'restructuredtext'
 
 
-@adapter_config(name='paragraphs',
+@adapter_config(name='body',
                 required=IParagraphContainerTarget,
                 provides=IDocumentIndexInfo)
-def paragraph_container_index_info(context):
+def paragraph_container_index_info(context, adapters=None):
     """Paragraph container index info"""
     body = {}
-    for paragraph in IParagraphContainer(context).get_visible_paragraphs():
-        info = IDocumentIndexInfo(paragraph, None)
-        if info is not None:
+    registry = get_pyramid_registry()
+    for paragraph in find_objects_providing(context, IBaseParagraph):
+        if (not paragraph.visible) or IParagraphsGroup.providedBy(paragraph):
+            continue
+        for name, info in registry.getAdapters((paragraph,), IDocumentIndexInfo):
+            if name:
+                if 'body' in info:
+                    info = info['body']
+                else:
+                    continue
             for lang, body_info in info.items():
                 body[lang] = f"{body.get(lang, '')}\n{body_info}"
     return {

@@ -15,34 +15,27 @@
 This module defines the adapters which are used to handle links indexation.
 """
 
-from pyams_content.component.association.interfaces import IAssociationContainer, IAssociationItem
+from pyams_content.component.association import IAssociationContainerTarget
+from pyams_content.component.association.interfaces import IAssociationContainer
 from pyams_content.component.links import IBaseLink
-from pyams_content.component.paragraph.interfaces import IParagraphContainer, \
-    IParagraphContainerTarget
+from pyams_content_es.component import get_index_values
 from pyams_content_es.interfaces import IDocumentIndexInfo
 from pyams_utils.adapter import adapter_config
-
 
 __docformat__ = 'restructuredtext'
 
 
 @adapter_config(name='links',
-                required=IParagraphContainerTarget,
+                required=IAssociationContainerTarget,
                 provides=IDocumentIndexInfo)
-def paragraph_container_target_link_index_info(context):
+def association_container_target_link_index_info(context):
     """Internal and external links index info"""
-    links = []
-    for paragraph in IParagraphContainer(context).get_visible_paragraphs():
-        associations = IAssociationContainer(paragraph, {})
-        for link in associations.values():
-            if not IAssociationItem(link).visible:
-                continue
-            if not IBaseLink.providedBy(link):
-                continue
-            links.append({
-                'title': link.title,
-                'description': link.description
-            })
+    index_info = {}
+    for link in IAssociationContainer(context).get_visible_items():
+        if not IBaseLink.providedBy(link):
+            continue
+        get_index_values(link, index_info,
+                         i18n_fields=('title', 'description'))
     return {
-        'link': links
+        'body': index_info
     }

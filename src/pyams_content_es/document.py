@@ -150,10 +150,16 @@ class ElasticDocumentMixin(ElasticMixin):
     def elastic_document(self):
         document_info = super().elastic_document()
         registry = get_pyramid_registry()
-        for name, adapter in registry.getAdapters((self,), IDocumentIndexInfo):
+        for name, index_info in registry.getAdapters((self,), IDocumentIndexInfo):
             if not name:
                 continue
-            document_info.update(adapter)
+            if 'body' in index_info:
+                body = document_info.get('body', {})
+                for lang, body_info in index_info['body'].items():
+                    body[lang] = f"{body.get(lang, '')}\n{body_info}"
+                document_info['body'] = body
+            else:
+                document_info.update(index_info)
         return document_info
 
 

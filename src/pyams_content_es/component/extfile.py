@@ -15,17 +15,18 @@
 This module defines adapters which are used to handle external file indexation.
 """
 
-__docformat__ = 'restructuredtext'
-
 import base64
 
-from pyams_content.component.association.interfaces import IAssociationContainer, IAssociationItem
 from pyams_content.component.extfile.interfaces import IBaseExtFile
-from pyams_content.component.paragraph.interfaces import IParagraphContainer, \
-    IParagraphContainerTarget
+from pyams_content.component.paragraph import IBaseParagraph
+from pyams_content.component.paragraph.interfaces import IParagraphContainerTarget
 from pyams_content_es.interfaces import IDocumentIndexInfo
 from pyams_utils.adapter import adapter_config
+from pyams_utils.finder import find_objects_providing
+from pyams_utils.traversing import get_parent
 from pyams_workflow.interfaces import IWorkflow, IWorkflowState
+
+__docformat__ = 'restructuredtext'
 
 
 @adapter_config(name='extfile',
@@ -33,29 +34,23 @@ from pyams_workflow.interfaces import IWorkflow, IWorkflowState
                 provides=IDocumentIndexInfo)
 def paragraph_container_extfile_index_info(context):
     """Paragraph container external file indexation info"""
-
+    extfiles = []
+    attachments = []
     workflow_state = None
     workflow = IWorkflow(context, None)
     if workflow is not None:
         workflow_state = IWorkflowState(context, None)
-
-    # extract paragraphs attachments
-    extfiles = []
-    attachments = []
-    for paragraph in IParagraphContainer(context).get_visible_paragraphs():
-        associations = IAssociationContainer(paragraph, {})
-        for extfile in associations.values():
-            if not IAssociationItem(extfile).visible:
-                continue
-            if not (IBaseExtFile.providedBy(extfile) and extfile.data):
+    # don't index attachments for contents which are not published
+    if (not workflow_state) or (workflow_state.state in workflow.visible_states):
+        # extract paragraphs attachments
+        for extfile in find_objects_providing(context, IBaseExtFile):
+            paragraph = get_parent(extfile, IBaseParagraph)
+            if not paragraph.visible:
                 continue
             extfiles.append({
                 'title': extfile.title,
                 'description': extfile.description
             })
-            # don't index attachments for contents which are not published
-            if workflow_state and (workflow_state.state not in workflow.visible_states):
-                continue
             for lang, data in extfile.data.items():
                 content_type = data.content_type
                 if isinstance(content_type, bytes):

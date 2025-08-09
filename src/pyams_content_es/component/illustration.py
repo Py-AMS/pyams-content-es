@@ -14,7 +14,7 @@
 
 """
 
-from pyams_content.component.illustration.interfaces import IIllustrationParagraph
+from pyams_content.component.illustration.interfaces import IIllustration, IIllustrationParagraph, IIllustrationTarget
 from pyams_content_es.component import get_index_values
 from pyams_content_es.component.paragraph import base_paragraph_index_info
 from pyams_content_es.interfaces import IDocumentIndexInfo
@@ -22,6 +22,23 @@ from pyams_utils.adapter import adapter_config
 
 __docformat__ = 'restructuredtext'
 
+
+@adapter_config(name='illustration',
+                required=IIllustrationTarget,
+                provides=IDocumentIndexInfo)
+def illustration_target_index_info(context):
+    """Illustration target index info"""
+    index_info = {}
+    illustration = IIllustration(context)
+    if illustration.has_data():
+        index_info = base_paragraph_index_info(illustration)
+        get_index_values(illustration, index_info,
+                         fields=('author',),
+                         i18n_fields=('description', 'alt_title'))
+    return {
+        'body': index_info
+    }
+    
 
 @adapter_config(required=IIllustrationParagraph,
                 provides=IDocumentIndexInfo)

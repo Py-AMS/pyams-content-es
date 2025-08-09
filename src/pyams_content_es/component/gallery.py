@@ -46,5 +46,5 @@ def gallery_target_index_info(context):
     gallery = IGallery(context)
     info = IDocumentIndexInfo(gallery, None)
     return {
-        'gallery': info
+        'body': info
     }

@@ -29,7 +29,7 @@ def html_to_index(value):
     return html_to_text(value).replace(chr(13), '')
 
 
-def get_index_values(context, output, fields=None, i18n_fields=None):
+def get_index_values(context, output, fields=None, i18n_fields=None, sep='\n'):
     """Get index values from context"""
     i18n_manager = II18nManager(context, None)
     if i18n_manager is None:
@@ -49,7 +49,7 @@ def get_index_values(context, output, fields=None, i18n_fields=None):
         if converter is not None:
             value = converter(value)
         for lang in languages:
-            output[lang] = f"{output.get(lang, '')}\n" \
+            output[lang] = f"{output.get(lang, '')}{sep}" \
                            f"{value}"
     # i18n fields getter
     for field in (i18n_fields or ()):
@@ -65,5 +65,5 @@ def get_index_values(context, output, fields=None, i18n_fields=None):
                 continue
             if converter is not None:
                 i18n_value = converter(i18n_value)
-            output[lang] = f"{output.get(lang, '')}\n" \
+            output[lang] = f"{output.get(lang, '')}{sep}" \
                            f"{i18n_value}"
