@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.3.0
+-----
+ - updated shared content index adapters
+
 2.2.3
 -----
  - updated Gitlab CI for Python 3.11 and 3.12
