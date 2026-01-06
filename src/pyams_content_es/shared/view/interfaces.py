@@ -16,7 +16,7 @@ This module defines interfaces related to views management.
 """
 
 from pyams_content.shared.view import IViewQuery
-from pyams_content.shared.view.interfaces.query import IViewQueryFilterExtension, IViewQueryParamsExtension, \
+from pyams_content.shared.view.interfaces.query import IViewQueryResultsFilterExtension, IViewQueryParamsExtension, \
     IViewUserQuery
 
 __docformat__ = 'restructuredtext'
@@ -61,9 +61,10 @@ class IEsViewUserPostFilter(IViewUserQuery):
     """Elasticsearch view user post-filter interface"""
 
 
-class IEsViewQueryResultsFilterExtension(IViewQueryFilterExtension):
+class IEsViewQueryResultsFilterExtension(IViewQueryResultsFilterExtension):
     """Elasticsearch view query filter extension
 
     This interface is used to register adapters which are defined to
     filter results of Elasticsearch query. So unlike params extensions,
+    they are generally slower and can alter the list of query results.
     """

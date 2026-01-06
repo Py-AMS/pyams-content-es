@@ -12,9 +12,9 @@
 
 """PyAMS_content_es.shared.view.reference module
 
+This module provides components which are used to handle view query params
+and filters based on internal references.
 """
-
-__docformat__ = 'restructuredtext'
 
 from elasticsearch_dsl import Q
 from zope.intid.interfaces import IIntIds
@@ -22,9 +22,13 @@ from zope.intid.interfaces import IIntIds
 from pyams_content.shared.view import IWfView
 from pyams_content.shared.view.interfaces.query import EXCLUDED_VIEW_ITEMS
 from pyams_content.shared.view.interfaces.settings import IViewInternalReferencesSettings, ONLY_REFERENCE_MODE
-from pyams_content_es.shared.view import IEsViewQueryParamsExtension, IEsViewUserQuery
+from pyams_content.shared.view.reference import ViewReferencesQueryFilterExtension
+from pyams_content_es.shared.view import IEsViewQueryParamsExtension, IEsViewQueryResultsFilterExtension, \
+    IEsViewUserQuery
 from pyams_utils.adapter import ContextAdapter, adapter_config
 from pyams_utils.registry import get_utility
+
+__docformat__ = 'restructuredtext'
 
 
 @adapter_config(name='references',
@@ -68,3 +72,10 @@ class EsExclusionsViewQueryParamsExtension(ContextAdapter):
             yield Q('bool',
                     must_not=Q('terms',
                                **{'reference_id': tuple(excluded_items)}))
+
+
+@adapter_config(name='references',
+                required=IWfView,
+                provides=IEsViewQueryResultsFilterExtension)
+class EsViewReferencesQueryFilterExtension(ViewReferencesQueryFilterExtension):
+    """Elasticsearch internal references handler"""
