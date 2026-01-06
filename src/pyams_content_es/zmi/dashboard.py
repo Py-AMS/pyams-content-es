@@ -66,10 +66,9 @@ class EsSharedToolDashboardManagerWaitingValues(SharedToolDashboardManagerWaitin
         """Table values adapter"""
         intids = get_utility(IIntIds)
         workflow = IWorkflow(self.context)
-        vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys())) &
+            Q('terms', content_type=list(self.get_content_types())) &
             Q('terms', workflow__status=list(workflow.waiting_states)))
         search = get_elastic_search(self.request, params)
         yield from filter(
@@ -88,10 +87,9 @@ class EsSharedToolDashboardOwnerWaitingValues(SharedToolDashboardOwnerWaitingVal
         principal_id = self.request.principal.id
         intids = get_utility(IIntIds)
         workflow = IWorkflow(self.context)
-        vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys())) &
+            Q('terms', content_type=list(self.get_content_types())) &
             Q('terms', workflow__status=list(workflow.waiting_states)) &
             Q('term', workflow__principal=principal_id))
         search = get_elastic_search(self.request, params) \
@@ -114,10 +112,9 @@ class EsSharedToolPreparationsValues(SharedToolPreparationsValues):
         principal_id = self.request.principal.id
         intids = get_utility(IIntIds)
         workflow = IWorkflow(self.context)
-        vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys())) &
+            Q('terms', content_type=list(self.get_content_types())) &
             (Q('term', owner_id=principal_id) |
              Q('term', contributor_id=principal_id)) &
             Q('term', workflow__status=workflow.initial_state)
@@ -143,10 +140,9 @@ class EsSharedToolSubmissionsValues(SharedToolSubmissionsValues):
         principal_id = self.request.principal.id
         intids = get_utility(IIntIds)
         workflow = IWorkflow(context)
-        vocabulary = getVocabularyRegistry().get(context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys())) &
+            Q('terms', content_type=list(self.get_content_types())) &
             (Q('term', owner_id=principal_id) |
              Q('term', contributor_id=principal_id)) &
             Q('terms', workflow__status=list(workflow.waiting_states))
@@ -172,10 +168,9 @@ class EsSharedToolPublicationsValues(SharedToolPublicationsValues):
         principal_id = self.request.principal.id
         intids = get_utility(IIntIds)
         workflow = get_utility(IWorkflow, name=context.shared_content_workflow)
-        vocabulary = getVocabularyRegistry().get(context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys())) &
+            Q('terms', content_type=list(self.get_content_types())) &
             (Q('term', owner_id=principal_id) |
              Q('term', contributor_id=principal_id)) &
             Q('terms', workflow__status=list(workflow.published_states))
@@ -201,10 +196,9 @@ class EsSharedToolRetiredContentsValues(SharedToolRetiredContentsValues):
         principal_id = self.request.principal.id
         intids = get_utility(IIntIds)
         workflow = get_utility(IWorkflow, name=context.shared_content_workflow)
-        vocabulary = getVocabularyRegistry().get(context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys())) &
+            Q('terms', content_type=list(self.get_content_types())) &
             (Q('term', owner_id=principal_id) |
              Q('term', contributor_id=principal_id)) &
             Q('terms', workflow__status=list(workflow.retired_states))
@@ -230,10 +224,9 @@ class EsSharedToolArchivedContentsValues(SharedToolArchivedContentsValues):
         principal_id = self.request.principal.id
         intids = get_utility(IIntIds)
         workflow = get_utility(IWorkflow, name=context.shared_content_workflow)
-        vocabulary = getVocabularyRegistry().get(context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys())) &
+            Q('terms', content_type=list(self.get_content_types())) &
             (Q('term', owner_id=principal_id) |
              Q('term', contributor_id=principal_id)) &
             Q('terms', workflow__status=list(workflow.archived_states))
@@ -257,10 +250,9 @@ class EsSharedToolLastPublicationsValues(SharedToolLastPublicationsValues):
     def values(self):
         intids = get_utility(IIntIds)
         workflow = get_utility(IWorkflow, name=self.context.shared_content_workflow)
-        vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys())) &
+            Q('terms', content_type=list(self.get_content_types())) &
             Q('terms', workflow__status=list(workflow.published_states))
         )
         search = get_elastic_search(self.request, params) \
@@ -281,10 +273,9 @@ class EsSharedToolLastModificationsValues(SharedToolLastModificationsValues):
     @property
     def values(self):
         intids = get_utility(IIntIds)
-        vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = (
             Q('term', parent_ids=intids.register(self.context)) &
-            Q('terms', content_type=list(vocabulary.by_value.keys()))
+            Q('terms', content_type=list(self.get_content_types()))
         )
         search = get_elastic_search(self.request, params) \
             .sort({
@@ -309,13 +300,12 @@ class EsSiteRootDashboardManagerWaitingValues(SiteRootDashboardManagerWaitingVal
     def values(self):
         """Table values getter"""
         intids = get_utility(IIntIds)
-        vocabulary = getVocabularyRegistry().get(self.context, SHARED_CONTENT_TYPES_VOCABULARY)
         params = None
         for tool in get_all_utilities_registered_for(IBaseSharedTool):
             workflow = IWorkflow(tool)
             query = (
                 Q('term', parent_ids=intids.register(tool)) &
-                Q('terms', content_type=list(vocabulary.by_value.keys())) &
+                Q('terms', content_type=list(self.get_content_types())) &
                 Q('terms', workflow__status=list(workflow.waiting_states))
             )
             params = params | query if params else query
