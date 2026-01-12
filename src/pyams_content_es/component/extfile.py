@@ -17,7 +17,7 @@ This module defines adapters which are used to handle external file indexation.
 
 import base64
 
-from pyams_content.component.extfile.interfaces import IBaseExtFile
+from pyams_content.component.extfile import IExtFile
 from pyams_content.component.paragraph import IBaseParagraph
 from pyams_content.component.paragraph.interfaces import IParagraphContainerTarget
 from pyams_content_es.interfaces import IDocumentIndexInfo
@@ -41,17 +41,24 @@ def paragraph_container_extfile_index_info(context):
     if workflow is not None:
         workflow_state = IWorkflowState(context, None)
     # don't index attachments for contents which are not published
-    if (not workflow_state) or (workflow_state.state in workflow.visible_states):
-        # extract paragraphs attachments
-        for extfile in find_objects_providing(context, IBaseExtFile):
+    if (workflow_state is None) or (workflow_state.state in workflow.visible_states):
+        max_file_size = getattr(context, '_v_es_max_file_size', 0) * 1024
+        # extract attachments
+        for extfile in find_objects_providing(context, IExtFile):
+            if not extfile.visible:
+                continue
             paragraph = get_parent(extfile, IBaseParagraph)
-            if not paragraph.visible:
+            if (paragraph is not None) and not paragraph.visible:
                 continue
             extfiles.append({
                 'title': extfile.title,
                 'description': extfile.description
             })
+            if not extfile.data:
+                continue
             for lang, data in extfile.data.items():
+                if max_file_size and (data.get_size() > max_file_size):
+                    continue
                 content_type = data.content_type
                 if isinstance(content_type, bytes):
                     content_type = content_type.decode()

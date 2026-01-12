@@ -94,6 +94,8 @@ def index_site(request, autocommit=True, cmd_args=None, **kwargs):
                                 else:
                                     print('-', end=' ')
                                 continue
+                        if args.max_file_size:
+                            document._v_es_max_file_size = args.max_file_size
                         try:
                             client.index_object(document)
                         except TransportError:
@@ -106,6 +108,9 @@ def index_site(request, autocommit=True, cmd_args=None, **kwargs):
                                 print(": index OK")
                             else:
                                 print(f"(+{document.id})", end=' ')
+                        finally:
+                            if args.max_file_size:
+                                delattr(document, '_v_es_max_file_size')
                         if autocommit:
                             transaction.commit()
                     except:

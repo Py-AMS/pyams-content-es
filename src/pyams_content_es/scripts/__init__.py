@@ -45,6 +45,8 @@ def pyams_index_cmd():
                              "content types to exclude from index")
     parser.add_argument('-t', '--timeout', type=float, default=10,
                         help="Document indexer timeout, in seconds (default=10)")
+    parser.add_argument('-s', '--max-file-size', type=int, default=0,
+                        help="Maximum size of external files to index, in Kb (default=0: no limit)")
     parser.add_argument('-v', '--verbose', action='store_true',
                         help="Verbose outputs")
     parser.add_argument('config_uri', help="Configuration filename")
