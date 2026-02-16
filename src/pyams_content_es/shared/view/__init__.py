@@ -16,15 +16,14 @@ This module defines how shared content queries are handled when using an Elastic
 index.
 """
 
-__docformat__ = 'restructuredtext'
-
 from elasticsearch_dsl import A, AttrDict, Q, Search
 from zope.interface import implementer
 
 from pyams_catalog.query import CatalogResultSet
-from pyams_content.shared.view import IViewQuery, IWfView
-from pyams_content.shared.view.interfaces import RELEVANCE_ORDER, TITLE_ORDER
-from pyams_content.shared.view.interfaces.query import END_PARAMS_MARKER
+from pyams_content.feature.search.interfaces import ISearchFolder
+from pyams_content.shared.view.interfaces import IWfView, RELEVANCE_ORDER, TITLE_ORDER
+from pyams_content.shared.view.interfaces.query import CUSTOM_QUERY_SEARCH_MODE_KEY, END_PARAMS_MARKER, \
+    ICustomUserQueryHandler, IViewQuery, IViewUserQuery
 from pyams_content_es.interfaces import IContentIndexerUtility, IUserSearchSettings
 from pyams_content_es.shared.view.interfaces import IEsViewQuery, IEsViewQueryParamsExtension, \
     IEsViewQueryPostFilterExtension, IEsViewQueryResultsFilterExtension, IEsViewUserPostFilter, IEsViewUserQuery
@@ -32,9 +31,11 @@ from pyams_elastic.include import get_client
 from pyams_i18n.interfaces import INegotiator
 from pyams_sequence.interfaces import ISequentialIntIds
 from pyams_utils.adapter import ContextAdapter, adapter_config, get_adapter_weight
-from pyams_utils.list import boolean_iter, unique_iter
+from pyams_utils.list import unique_iter
 from pyams_utils.registry import get_pyramid_registry, get_utility
 from pyams_workflow.interfaces import IWorkflow
+
+__docformat__ = 'restructuredtext'
 
 
 @adapter_config(required=IWfView,
@@ -128,6 +129,20 @@ class EsViewQuery(ContextAdapter):
                                     'gte': f'now-{age_limit}d/m'
                                 }
                             })
+        # add user search params
+        if kwargs.pop('get_user_params', None) is True:
+            search_mode = request.annotations.get(CUSTOM_QUERY_SEARCH_MODE_KEY)
+            for name, adapter in registry.getAdapters((self,), IViewUserQuery):
+                if search_mode:
+                    query_handler = registry.queryMultiAdapter((self, adapter),
+                                                               ICustomUserQueryHandler,
+                                                               name=f'{name}::{search_mode}')
+                    if query_handler is not None:
+                        for user_param in query_handler.get_user_params(request):
+                            params &= user_param
+                        continue
+                for user_param in adapter.get_user_params(request):
+                    params &= user_param
         return params
 
     def get_post_filters(self, context, request=None, **kwargs):
@@ -197,9 +212,19 @@ class EsViewQuery(ContextAdapter):
                 total_count = results.hits.total['value']
         for name, adapter in sorted(registry.getAdapters((self.context,),
                                                          IEsViewQueryResultsFilterExtension),
-                                    key=lambda x: x[1].weight):
+                                    key=get_adapter_weight):
             items = adapter.filter(context, items, request)
         return total_count, aggregations, unique_iter(items)
+
+
+@adapter_config(required=ISearchFolder,
+                provides=IViewQuery)
+class EsSearchFolderQuery(EsViewQuery):
+    """Search folder query adapter for Elasticsearch"""
+
+    def get_params(self, context, request=None, **kwargs):
+        kwargs.pop('get_user_params', None)
+        return super().get_params(context, request, get_user_params=True, **kwargs)
 
 
 class BaseEsUserViewQueryExtension(ContextAdapter):
