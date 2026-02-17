@@ -14,12 +14,15 @@
 
 This module defines PyAMS_content indexing process.
 """
+
 from multiprocessing import Process
 
 from pprint import pformat
-from pyramid.threadlocal import RequestContext
+from pyramid.config import Configurator
+from pyramid.threadlocal import RequestContext, manager
 from threading import Thread
 from transaction.interfaces import ITransactionManager
+from zope.component import getSiteManager
 from zope.interface import implementer
 from zope.intid import IIntIds
 
@@ -48,6 +51,12 @@ class BaseIndexUpdaterProcess(Process):
     def run(self):
         """Index update process"""
         LOGGER.debug("Starting Elastincsearch index updater process...")
+        # initialize registry and ZCA hook
+        registry = self.registry
+        LOGGER.debug(f"Getting Pyramid registry: {registry!r}")
+        manager.push({'registry': registry, 'request': None})
+        config = Configurator(registry=registry)
+        config.hook_zca()
         # check settings
         settings = self.settings
         LOGGER.debug(f"Checking parameters: {settings}")
@@ -55,20 +64,17 @@ class BaseIndexUpdaterProcess(Process):
         if not document_id:
             LOGGER.warning("Elasticsearch index updater: missing document ID!")
             return
-        # loading components registry
-        registry = self.registry
-        LOGGER.debug(f"Getting Pyramid registry: {registry!r}")
-        # get ES client
+        # get Elasticsearch client
         es_client = client_from_config(registry.settings)
         if es_client is None:
             LOGGER.warning("Missing Elasticsearch client configuration!")
             return
-        # create new request
+        # create a new request
         request = check_request()
         request.registry = registry
         LOGGER.debug(f"Creating new request {request!r}")
         with RequestContext(request):
-            # open ZODB connection
+            # open the ZODB connection
             LOGGER.debug("Opening ZODB connection...")
             zodb_name = settings.pop('zodb_name', '')
             with ZODBConnection(zodb_name) as root:
@@ -79,7 +85,7 @@ class BaseIndexUpdaterProcess(Process):
                 LOGGER.debug(f"Loaded application {application!r} "
                              f"with name {application_name}")
                 if application is not None:
-                    # set local registry
+                    # set the local registry
                     sm = application.getSiteManager()
                     set_local_registry(sm)
                     LOGGER.debug(f"Setting local registry {sm!r}")
