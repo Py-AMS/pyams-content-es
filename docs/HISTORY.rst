@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.4.0
+-----
+ - added PyAMS monitoring extension
+ - added argument to documents indexer script to limit the size of indexed external files
+ - added optional views adapters interfaces
+ - use updated dashboards base classes
+
 2.3.0
 -----
  - updated shared content index adapters
