@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.4.1
+-----
+ - add ZCA hook on indexer process startup
+
 2.4.0
 -----
  - added PyAMS monitoring extension
