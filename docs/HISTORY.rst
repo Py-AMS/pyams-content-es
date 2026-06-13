@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.4.2
+-----
+ - added milestones paragraphs to document index
+
 2.4.1
 -----
  - add ZCA hook on indexer process startup
